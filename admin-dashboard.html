@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>لوحة تحكم الإدارة | مكتب المحامي ياسر الربيع</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--gold:#C9A84C;--gold-light:#E8C87A;--navy:#0D1B2A;--navy-mid:#1A2E45;--cream:#F9F6F0;--white:#fff;--green:#27AE60;--red:#E74C3C;--orange:#F39C12;--text-dark:#1A1A2E;--text-mid:#4A5568;--border:rgba(0,0,0,0.08);--sidebar-w:270px;}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Tajawal',sans-serif;background:#F0F2F5;direction:rtl;min-height:100vh;}
+    .sidebar{position:fixed;top:0;right:0;bottom:0;width:var(--sidebar-w);background:var(--navy);border-left:1px solid rgba(201,168,76,0.15);z-index:100;display:flex;flex-direction:column;overflow-y:auto;}
+    .sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px;}
+    .sidebar-logo .emb{font-size:24px;color:var(--gold);}
+    .sb-title{font-family:'Amiri',serif;font-size:15px;color:#fff;line-height:1.2;}
+    .sb-sub{font-size:11px;color:var(--gold);}
+    .admin-badge{background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.3);color:#ff8a8a;font-size:10px;padding:3px 8px;border-radius:4px;margin-top:4px;display:inline-block;}
+    .sidebar-nav{flex:1;padding:12px 0;}
+    .nav-label{color:rgba(255,255,255,0.2);font-size:10px;font-weight:700;letter-spacing:1.5px;padding:14px 20px 4px;}
+    .sb-link{display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,0.55);text-decoration:none;font-size:13px;font-weight:500;transition:all .2s;cursor:pointer;border:none;background:none;width:100%;text-align:right;font-family:'Tajawal',sans-serif;}
+    .sb-link:hover,.sb-link.active{color:var(--gold);background:rgba(201,168,76,0.08);border-right:3px solid var(--gold);}
+    .sb-icon{font-size:16px;width:20px;text-align:center;}
+    .sidebar-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,0.06);}
+    .admin-user{color:rgba(255,255,255,0.5);font-size:12px;margin-bottom:10px;}
+    .logout-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.35);font-size:12px;cursor:pointer;background:none;border:none;font-family:'Tajawal',sans-serif;transition:color .2s;}
+    .logout-btn:hover{color:var(--red);}
+    .main{margin-right:var(--sidebar-w);padding:28px;min-height:100vh;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+    .page-title h1{font-family:'Amiri',serif;font-size:24px;color:var(--text-dark);}
+    .page-title p{color:var(--text-mid);font-size:13px;}
+    .section{display:none;}
+    .section.active{display:block;}
+    /* Cards */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+    .stat-card{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+    .stat-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .si-blue{background:rgba(52,152,219,.1)}.si-green{background:rgba(39,174,96,.1)}.si-orange{background:rgba(243,156,18,.1)}.si-red{background:rgba(231,76,60,.1)}
+    .stat-num{font-size:28px;font-weight:900;color:var(--text-dark);}
+    .stat-lbl{color:var(--text-mid);font-size:12px;margin-top:2px;}
+    /* Table card */
+    .tcard{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.04);margin-bottom:20px;}
+    .tcard-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .tcard-hdr h3{font-size:15px;font-weight:700;color:var(--text-dark);display:flex;align-items:center;gap:8px;}
+    table{width:100%;border-collapse:collapse;}
+    thead{background:#F8FAFC;}
+    thead th{padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:var(--text-mid);letter-spacing:.5px;}
+    tbody td{padding:12px 16px;font-size:13px;color:var(--text-dark);border-bottom:1px solid rgba(0,0,0,0.04);}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:#FAFAFA;}
+    .empty-msg{text-align:center;padding:40px;color:var(--text-mid);font-size:14px;}
+    /* Badges */
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600;}
+    .b-green{background:rgba(39,174,96,.12);color:#27AE60;}
+    .b-orange{background:rgba(243,156,18,.12);color:#E67E22;}
+    .b-red{background:rgba(231,76,60,.12);color:#C0392B;}
+    .b-blue{background:rgba(52,152,219,.12);color:#2980B9;}
+    /* Buttons */
+    .btn-gold{background:var(--gold);color:var(--navy);border:none;padding:9px 18px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-gold:hover{background:var(--gold-light);}
+    .btn-sm{padding:5px 12px;border-radius:6px;border:none;font-family:'Tajawal',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+    .btn-edit{background:rgba(52,152,219,.1);color:#2980B9;}
+    .btn-edit:hover{background:rgba(52,152,219,.2);}
+    .btn-del{background:rgba(231,76,60,.1);color:var(--red);}
+    .btn-del:hover{background:rgba(231,76,60,.2);}
+    /* Modal */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay.show{display:flex;}
+    .modal{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.3);}
+    .modal h2{font-family:'Amiri',serif;font-size:22px;color:var(--text-dark);margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+    .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .modal-grid.single{grid-template-columns:1fr;}
+    .fgroup{display:flex;flex-direction:column;gap:6px;}
+    .fgroup label{font-size:12px;font-weight:700;color:var(--text-mid);}
+    .finput,.fselect,.ftextarea{background:#F8FAFC;border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:11px 14px;font-family:'Tajawal',sans-serif;font-size:14px;color:var(--text-dark);direction:rtl;outline:none;transition:border .2s;width:100%;}
+    .finput:focus,.fselect:focus,.ftextarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1);}
+    .ftextarea{resize:vertical;}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--border);}
+    .btn-cancel{background:#F1F3F5;color:var(--text-mid);border:none;padding:10px 20px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+    .btn-save{background:var(--gold);color:var(--navy);border:none;padding:10px 28px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-save:hover{background:var(--gold-light);}
+    /* Search */
+    .search-input{background:#F8FAFC;border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:'Tajawal',sans-serif;font-size:13px;direction:rtl;outline:none;transition:border .2s;min-width:200px;}
+    .search-input:focus{border-color:var(--gold);}
+    /* Toast */
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.3);z-index:9999;transition:transform .3s;border-right:4px solid var(--gold);}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    @media(max-width:900px){.sidebar{right:-100%;transition:right .3s}.sidebar.open{right:0}.main{margin-right:0}.stats-row{grid-template-columns:1fr 1fr}}
+    @media(max-width:540px){.stats-row{grid-template-columns:1fr}.modal-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="emb">⚖</div>
+    <div>
+      <div class="sb-title">مكتب ياسر الربيع</div>
+      <div class="sb-sub">نظام الإدارة</div>
+      <span class="admin-badge">مسؤول</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">لوحة التحكم</div>
+    <button class="sb-link active" onclick="showSec('overview')"><span class="sb-icon">🏠</span>الرئيسية</button>
+    <div class="nav-label">إدارة العملاء</div>
+    <button class="sb-link" onclick="showSec('clients')"><span class="sb-icon">👥</span>العملاء</button>
+    <button class="sb-link" onclick="showSec('sessions')"><span class="sb-icon">📅</span>الجلسات</button>
+    <button class="sb-link" onclick="showSec('fees')"><span class="sb-icon">💳</span>الرسوم</button>
+    <button class="sb-link" onclick="showSec('documents')"><span class="sb-icon">📂</span>المستندات</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-user" id="adminEmail">—</div>
+    <button class="logout-btn" onclick="adminLogout()">🚪 تسجيل الخروج</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title">
+      <h1 id="pgTitle">لوحة التحكم الرئيسية</h1>
+      <p id="pgSub">إدارة شاملة لملفات المكتب</p>
+    </div>
+    <div style="color:var(--text-mid);font-size:13px;background:#fff;padding:7px 14px;border-radius:8px;border:1px solid var(--border)" id="adminDate"></div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="section active" id="sec-overview">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-card-top"><div class="stat-icon si-blue">👥</div></div><div class="stat-num" id="st-clients">0</div><div class="stat-lbl">عميل مسجل</div></div>
+      <div class="stat-card"><div class="stat-card-top"><div class="stat-icon si-green">⚖</div></div><div class="stat-num" id="st-cases">0</div><div class="stat-lbl">قضية نشطة</div></div>
+      <div class="stat-card"><div class="stat-card-top"><div class="stat-icon si-orange">💳</div></div><div class="stat-num" id="st-fees">0</div><div class="stat-lbl">رسوم مستحقة (ر.س)</div></div>
+      <div class="stat-card"><div class="stat-card-top"><div class="stat-icon si-red">📅</div></div><div class="stat-num" id="st-sessions">0</div><div class="stat-lbl">جلسة هذا الشهر</div></div>
+    </div>
+    <div class="tcard">
+      <div class="tcard-hdr"><h3>👥 آخر العملاء المضافين</h3><button class="btn-gold" onclick="showSec('clients')">عرض الكل</button></div>
+      <table><thead><tr><th>الاسم</th><th>رقم القضية</th><th>رقم الهوية</th><th>نوع القضية</th><th>الحالة</th></tr></thead>
+      <tbody id="recentClients"><tr><td colspan="5" class="empty-msg">جاري التحميل...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- CLIENTS -->
+  <div class="section" id="sec-clients">
+    <div class="tcard">
+      <div class="tcard-hdr">
+        <h3>👥 إدارة العملاء</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input class="search-input" id="clientSearch" placeholder="بحث باسم أو رقم قضية..." oninput="filterClients()"/>
+          <button class="btn-gold" onclick="openModal('client')">+ إضافة عميل</button>
+        </div>
+      </div>
+      <table><thead><tr><th>الاسم</th><th>رقم القضية</th><th>رقم الهوية</th><th>الجوال</th><th>نوع القضية</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <tbody id="clientsBody"><tr><td colspan="7" class="empty-msg">جاري التحميل...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- SESSIONS -->
+  <div class="section" id="sec-sessions">
+    <div class="tcard">
+      <div class="tcard-hdr">
+        <h3>📅 إدارة الجلسات</h3>
+        <div style="display:flex;gap:10px">
+          <select class="search-input" id="sessionClientFilter" onchange="loadAdminSessions()"><option value="">كل العملاء</option></select>
+          <button class="btn-gold" onclick="openModal('session')">+ إضافة جلسة</button>
+        </div>
+      </div>
+      <table><thead><tr><th>العميل</th><th>رقم القضية</th><th>التاريخ</th><th>المحكمة</th><th>القاضي</th><th>النتيجة</th><th>التالية</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <tbody id="sessionsAdminBody"><tr><td colspan="9" class="empty-msg">جاري التحميل...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- FEES -->
+  <div class="section" id="sec-fees">
+    <div class="tcard">
+      <div class="tcard-hdr">
+        <h3>💳 إدارة الرسوم</h3>
+        <button class="btn-gold" onclick="openModal('fee')">+ إضافة رسوم</button>
+      </div>
+      <table><thead><tr><th>العميل</th><th>رقم القضية</th><th>البند</th><th>المبلغ (ر.س)</th><th>الاستحقاق</th><th>الحالة</th><th>تاريخ الدفع</th><th>إجراءات</th></tr></thead>
+      <tbody id="feesAdminBody"><tr><td colspan="8" class="empty-msg">جاري التحميل...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- DOCUMENTS -->
+  <div class="section" id="sec-documents">
+    <div class="tcard">
+      <div class="tcard-hdr"><h3>📂 المستندات المرفوعة</h3></div>
+      <table><thead><tr><th>العميل</th><th>رقم القضية</th><th>اسم الملف</th><th>النوع</th><th>الحجم</th><th>تاريخ الرفع</th><th>فتح</th></tr></thead>
+      <tbody id="docsAdminBody"><tr><td colspan="7" class="empty-msg">جاري التحميل...</td></tr></tbody></table>
+    </div>
+  </div>
+</main>
+
+<!-- MODALS -->
+<!-- Client Modal -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <h2 id="clientModalTitle">إضافة عميل جديد</h2>
+    <input type="hidden" id="editClientId"/>
+    <div class="modal-grid">
+      <div class="fgroup"><label>الاسم الكامل *</label><input class="finput" id="f-name" placeholder="اسم العميل"/></div>
+      <div class="fgroup"><label>رقم الهوية الوطنية *</label><input class="finput" id="f-natid" placeholder="10 أرقام" maxlength="10"/></div>
+      <div class="fgroup"><label>رقم الجوال</label><input class="finput" id="f-phone" placeholder="05XXXXXXXX"/></div>
+      <div class="fgroup"><label>البريد الإلكتروني</label><input class="finput" id="f-email" placeholder="email@example.com"/></div>
+      <div class="fgroup"><label>تاريخ الميلاد</label><input class="finput" id="f-dob" type="date"/></div>
+      <div class="fgroup"><label>العنوان</label><input class="finput" id="f-address" placeholder="المدينة، الحي"/></div>
+      <div class="fgroup"><label>رقم القضية *</label><input class="finput" id="f-casenum" placeholder="مثال: 2024-1001"/></div>
+      <div class="fgroup"><label>نوع القضية</label>
+        <select class="fselect" id="f-casetype">
+          <option value="">اختر النوع</option>
+          <option>تجارية</option><option>أحوال شخصية</option><option>عقارية</option>
+          <option>جنائية</option><option>عمالية</option><option>توثيق وعقود</option><option>أخرى</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>المحكمة</label><input class="finput" id="f-court" placeholder="اسم المحكمة"/></div>
+      <div class="fgroup"><label>رقم الدائرة</label><input class="finput" id="f-circuit" placeholder="رقم الدائرة"/></div>
+      <div class="fgroup"><label>تاريخ رفع القضية</label><input class="finput" id="f-filed" type="date"/></div>
+      <div class="fgroup"><label>الطرف المقابل</label><input class="finput" id="f-opponent" placeholder="اسم الطرف الآخر"/></div>
+      <div class="fgroup"><label>حالة القضية</label>
+        <select class="fselect" id="f-status"><option value="جارية">جارية</option><option value="معلقة">معلقة</option><option value="منتهية">منتهية</option></select>
+      </div>
+    </div>
+    <div class="fgroup" style="margin-top:14px"><label>ملاحظات</label><textarea class="ftextarea" id="f-notes" rows="3" placeholder="أي ملاحظات إضافية..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('client')">إلغاء</button>
+      <button class="btn-save" onclick="saveClient()">حفظ العميل</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session Modal -->
+<div class="modal-overlay" id="modal-session">
+  <div class="modal">
+    <h2>إضافة / تعديل جلسة</h2>
+    <input type="hidden" id="editSessionId"/>
+    <div class="modal-grid">
+      <div class="fgroup"><label>العميل *</label><select class="fselect" id="fs-client"><option value="">اختر العميل</option></select></div>
+      <div class="fgroup"><label>تاريخ الجلسة *</label><input class="finput" id="fs-date" type="date"/></div>
+      <div class="fgroup"><label>المحكمة</label><input class="finput" id="fs-court" placeholder="اسم المحكمة"/></div>
+      <div class="fgroup"><label>القاضي</label><input class="finput" id="fs-judge" placeholder="اسم القاضي"/></div>
+      <div class="fgroup"><label>نتيجة الجلسة</label><input class="finput" id="fs-result" placeholder="نتيجة الجلسة"/></div>
+      <div class="fgroup"><label>موعد الجلسة القادمة</label><input class="finput" id="fs-next" type="date"/></div>
+      <div class="fgroup"><label>حالة الجلسة</label>
+        <select class="fselect" id="fs-status"><option value="قادمة">قادمة</option><option value="اكتملت">اكتملت</option><option value="مؤجلة">مؤجلة</option></select>
+      </div>
+    </div>
+    <div class="fgroup" style="margin-top:14px"><label>ملاحظات الجلسة</label><textarea class="ftextarea" id="fs-notes" rows="3" placeholder="ملاحظات..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('session')">إلغاء</button>
+      <button class="btn-save" onclick="saveSession()">حفظ الجلسة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fee Modal -->
+<div class="modal-overlay" id="modal-fee">
+  <div class="modal">
+    <h2>إضافة / تعديل رسوم</h2>
+    <input type="hidden" id="editFeeId"/>
+    <div class="modal-grid">
+      <div class="fgroup"><label>العميل *</label><select class="fselect" id="ff-client"><option value="">اختر العميل</option></select></div>
+      <div class="fgroup"><label>المبلغ (ر.س) *</label><input class="finput" id="ff-amount" type="number" placeholder="0.00"/></div>
+      <div class="fgroup modal-grid single"><label>البند / الوصف *</label><input class="finput" id="ff-desc" placeholder="مثال: رسوم المرافعة"/></div>
+      <div class="fgroup"><label>تاريخ الاستحقاق</label><input class="finput" id="ff-due" type="date"/></div>
+      <div class="fgroup"><label>الحالة</label>
+        <select class="fselect" id="ff-status"><option value="مستحقة">مستحقة</option><option value="مدفوعة">مدفوعة</option><option value="متأخرة">متأخرة</option></select>
+      </div>
+      <div class="fgroup"><label>تاريخ الدفع</label><input class="finput" id="ff-paid" type="date"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('fee')">إلغاء</button>
+      <button class="btn-save" onclick="saveFee()">حفظ الرسوم</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { FIREBASE_CONFIG } from './firebase-config.js';
+
+const app = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Auth guard
+onAuthStateChanged(auth, user => {
+  if (!user) { window.location.href = 'admin-login.html'; return; }
+  document.getElementById('adminEmail').textContent = user.email;
+  loadAll();
+});
+
+window.adminLogout = async function() {
+  await signOut(auth);
+  sessionStorage.removeItem('adminAuth');
+  window.location.href = 'admin-login.html';
+};
+
+let allClients = [];
+
+async function loadAll() {
+  await loadClients();
+  await loadAdminSessions();
+  await loadAdminFees();
+  await loadAdminDocs();
+  updateStats();
+}
+
+// ===== CLIENTS =====
+async function loadClients() {
+  try {
+    const snap = await getDocs(query(collection(db,'clients'), orderBy('createdAt','desc')));
+    allClients = snap.docs.map(d => ({id:d.id,...d.data()}));
+    renderClients(allClients);
+    populateClientSelects(allClients);
+    // Recent in overview
+    const tbody = document.getElementById('recentClients');
+    tbody.innerHTML = '';
+    allClients.slice(0,5).forEach(c => {
+      tbody.innerHTML += `<tr>
+        <td>${c.name||'—'}</td><td>${c.caseNumber||'—'}</td><td>${maskId(c.nationalId||'')}</td>
+        <td>${c.caseType||'—'}</td>
+        <td><span class="badge ${c.status==='جارية'?'b-green':c.status==='منتهية'?'b-red':'b-orange'}">${c.status||'—'}</span></td>
+      </tr>`;
+    });
+    if(!allClients.length) tbody.innerHTML='<tr><td colspan="5" class="empty-msg">لا يوجد عملاء بعد</td></tr>';
+  } catch(e) { console.error(e); }
+}
+
+function renderClients(list) {
+  const tbody = document.getElementById('clientsBody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="7" class="empty-msg">لا يوجد عملاء مطابقون</td></tr>';return;}
+  tbody.innerHTML='';
+  list.forEach(c => {
+    tbody.innerHTML += `<tr>
+      <td><strong>${c.name||'—'}</strong></td>
+      <td>${c.caseNumber||'—'}</td>
+      <td>${maskId(c.nationalId||'')}</td>
+      <td>${c.phone||'—'}</td>
+      <td>${c.caseType||'—'}</td>
+      <td><span class="badge ${c.status==='جارية'?'b-green':c.status==='منتهية'?'b-red':'b-orange'}">${c.status||'—'}</span></td>
+      <td><button class="btn-sm btn-edit" onclick="editClient('${c.id}')">تعديل</button> <button class="btn-sm btn-del" onclick="deleteClient('${c.id}')">حذف</button></td>
+    </tr>`;
+  });
+}
+
+window.filterClients = function() {
+  const q = document.getElementById('clientSearch').value.toLowerCase();
+  renderClients(allClients.filter(c => (c.name||'').toLowerCase().includes(q)||(c.caseNumber||'').toLowerCase().includes(q)));
+};
+
+function populateClientSelects(clients) {
+  ['fs-client','ff-client','sessionClientFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    const first = el.options[0];
+    el.innerHTML = '';
+    el.appendChild(first);
+    clients.forEach(c => { const o=document.createElement('option'); o.value=c.id; o.textContent=`${c.name} (${c.caseNumber})`; el.appendChild(o); });
+  });
+}
+
+function maskId(id) { return id ? id.slice(0,3)+'*****'+id.slice(-2) : '—'; }
+
+window.openModal = function(type) {
+  if(type==='client'){ clearClientForm(); document.getElementById('clientModalTitle').textContent='إضافة عميل جديد'; }
+  document.getElementById(`modal-${type}`).classList.add('show');
+};
+window.closeModal = function(type) { document.getElementById(`modal-${type}`).classList.remove('show'); };
+
+function clearClientForm() {
+  ['f-name','f-natid','f-phone','f-email','f-dob','f-address','f-casenum','f-court','f-circuit','f-filed','f-opponent','f-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-casetype').value='';
+  document.getElementById('f-status').value='جارية';
+  document.getElementById('editClientId').value='';
+}
+
+window.saveClient = async function() {
+  const name=document.getElementById('f-name').value.trim();
+  const natid=document.getElementById('f-natid').value.trim();
+  const casenum=document.getElementById('f-casenum').value.trim();
+  if(!name||!natid||!casenum){showToast('يرجى ملء الحقول الإلزامية');return;}
+  const data={
+    name,nationalId:natid,phone:document.getElementById('f-phone').value.trim(),
+    email:document.getElementById('f-email').value.trim(),dob:document.getElementById('f-dob').value,
+    address:document.getElementById('f-address').value.trim(),caseNumber:casenum,
+    caseType:document.getElementById('f-casetype').value,court:document.getElementById('f-court').value.trim(),
+    circuit:document.getElementById('f-circuit').value.trim(),filedDate:document.getElementById('f-filed').value,
+    opponent:document.getElementById('f-opponent').value.trim(),status:document.getElementById('f-status').value,
+    notes:document.getElementById('f-notes').value.trim()
+  };
+  const editId=document.getElementById('editClientId').value;
+  try {
+    if(editId){ await updateDoc(doc(db,'clients',editId),data); showToast('تم تحديث بيانات العميل'); }
+    else { data.createdAt=serverTimestamp(); await addDoc(collection(db,'clients'),data); showToast('تم إضافة العميل بنجاح'); }
+    closeModal('client'); loadClients();
+  } catch(e){showToast('خطأ في الحفظ: '+e.message);}
+};
+
+window.editClient = async function(id) {
+  const d=(await getDoc(doc(db,'clients',id))).data();
+  document.getElementById('editClientId').value=id;
+  document.getElementById('clientModalTitle').textContent='تعديل بيانات العميل';
+  document.getElementById('f-name').value=d.name||'';
+  document.getElementById('f-natid').value=d.nationalId||'';
+  document.getElementById('f-phone').value=d.phone||'';
+  document.getElementById('f-email').value=d.email||'';
+  document.getElementById('f-dob').value=d.dob||'';
+  document.getElementById('f-address').value=d.address||'';
+  document.getElementById('f-casenum').value=d.caseNumber||'';
+  document.getElementById('f-casetype').value=d.caseType||'';
+  document.getElementById('f-court').value=d.court||'';
+  document.getElementById('f-circuit').value=d.circuit||'';
+  document.getElementById('f-filed').value=d.filedDate||'';
+  document.getElementById('f-opponent').value=d.opponent||'';
+  document.getElementById('f-status').value=d.status||'جارية';
+  document.getElementById('f-notes').value=d.notes||'';
+  document.getElementById('modal-client').classList.add('show');
+};
+
+window.deleteClient = async function(id) {
+  if(!confirm('هل أنت متأكد من حذف هذا العميل؟')) return;
+  await deleteDoc(doc(db,'clients',id));
+  showToast('تم حذف العميل');
+  loadClients(); updateStats();
+};
+
+// ===== SESSIONS =====
+window.loadAdminSessions = async function() {
+  try {
+    const filterVal = document.getElementById('sessionClientFilter').value;
+    let q = filterVal ? query(collection(db,'sessions'),where('clientId','==',filterVal),orderBy('date','desc'))
+                      : query(collection(db,'sessions'),orderBy('date','desc'));
+    const snap = await getDocs(q);
+    const tbody = document.getElementById('sessionsAdminBody');
+    if(snap.empty){tbody.innerHTML='<tr><td colspan="9" class="empty-msg">لا توجد جلسات</td></tr>';return;}
+    tbody.innerHTML='';
+    snap.docs.forEach(d=>{
+      const s=d.data();
+      const stClass=s.status==='اكتملت'?'b-green':s.status==='قادمة'?'b-blue':'b-orange';
+      tbody.innerHTML+=`<tr>
+        <td>${s.clientName||'—'}</td><td>${s.caseNumber||'—'}</td><td>${s.date||'—'}</td>
+        <td>${s.court||'—'}</td><td>${s.judge||'—'}</td><td>${s.result||'—'}</td>
+        <td>${s.nextDate||'—'}</td>
+        <td><span class="badge ${stClass}">${s.status||'—'}</span></td>
+        <td><button class="btn-sm btn-del" onclick="deleteSession('${d.id}')">حذف</button></td>
+      </tr>`;
+    });
+  } catch(e){console.error(e);}
+};
+
+window.saveSession = async function() {
+  const clientId=document.getElementById('fs-client').value;
+  const date=document.getElementById('fs-date').value;
+  if(!clientId||!date){showToast('يرجى اختيار العميل والتاريخ');return;}
+  const c=allClients.find(x=>x.id===clientId);
+  await addDoc(collection(db,'sessions'),{
+    clientId,clientName:c?.name||'',caseNumber:c?.caseNumber||'',
+    date,court:document.getElementById('fs-court').value,
+    judge:document.getElementById('fs-judge').value,result:document.getElementById('fs-result').value,
+    nextDate:document.getElementById('fs-next').value,status:document.getElementById('fs-status').value,
+    notes:document.getElementById('fs-notes').value,createdAt:serverTimestamp()
+  });
+  showToast('تم إضافة الجلسة');
+  closeModal('session'); loadAdminSessions();
+};
+
+window.deleteSession = async function(id) {
+  if(!confirm('حذف هذه الجلسة؟'))return;
+  await deleteDoc(doc(db,'sessions',id));
+  showToast('تم حذف الجلسة'); loadAdminSessions();
+};
+
+// ===== FEES =====
+async function loadAdminFees() {
+  try {
+    const snap=await getDocs(query(collection(db,'fees'),orderBy('createdAt','desc')));
+    const tbody=document.getElementById('feesAdminBody');
+    if(snap.empty){tbody.innerHTML='<tr><td colspan="8" class="empty-msg">لا توجد رسوم</td></tr>';return;}
+    let pending=0;
+    tbody.innerHTML='';
+    snap.docs.forEach(d=>{
+      const f=d.data();
+      if(f.status!=='مدفوعة')pending+=Number(f.amount||0);
+      const stClass=f.status==='مدفوعة'?'b-green':f.status==='متأخرة'?'b-red':'b-orange';
+      tbody.innerHTML+=`<tr>
+        <td>${f.clientName||'—'}</td><td>${f.caseNumber||'—'}</td><td>${f.description||'—'}</td>
+        <td>${Number(f.amount||0).toLocaleString('ar-SA')}</td><td>${f.dueDate||'—'}</td>
+        <td><span class="badge ${stClass}">${f.status||'—'}</span></td><td>${f.paidDate||'—'}</td>
+        <td>
+          ${f.status!=='مدفوعة'?`<button class="btn-sm btn-edit" onclick="markPaid('${d.id}')">تأكيد دفع</button> `:''}
+          <button class="btn-sm btn-del" onclick="deleteFee('${d.id}')">حذف</button>
+        </td>
+      </tr>`;
+    });
+    document.getElementById('st-fees').textContent=pending.toLocaleString('ar-SA');
+  } catch(e){console.error(e);}
+}
+
+window.saveFee = async function() {
+  const clientId=document.getElementById('ff-client').value;
+  const amount=document.getElementById('ff-amount').value;
+  const desc=document.getElementById('ff-desc').value.trim();
+  if(!clientId||!amount||!desc){showToast('يرجى ملء الحقول الإلزامية');return;}
+  const c=allClients.find(x=>x.id===clientId);
+  await addDoc(collection(db,'fees'),{
+    clientId,clientName:c?.name||'',caseNumber:c?.caseNumber||'',
+    amount:Number(amount),description:desc,dueDate:document.getElementById('ff-due').value,
+    status:document.getElementById('ff-status').value,paidDate:document.getElementById('ff-paid').value,
+    createdAt:serverTimestamp()
+  });
+  showToast('تم إضافة الرسوم'); closeModal('fee'); loadAdminFees();
+};
+
+window.markPaid = async function(id) {
+  await updateDoc(doc(db,'fees',id),{status:'مدفوعة',paidDate:new Date().toLocaleDateString('ar-SA')});
+  showToast('تم تأكيد الدفع'); loadAdminFees();
+};
+
+window.deleteFee = async function(id) {
+  if(!confirm('حذف هذه الرسوم؟'))return;
+  await deleteDoc(doc(db,'fees',id)); showToast('تم الحذف'); loadAdminFees();
+};
+
+// ===== DOCS =====
+async function loadAdminDocs() {
+  try {
+    const snap=await getDocs(query(collection(db,'documents'),orderBy('uploadedAt','desc')));
+    const tbody=document.getElementById('docsAdminBody');
+    if(snap.empty){tbody.innerHTML='<tr><td colspan="7" class="empty-msg">لا توجد مستندات</td></tr>';return;}
+    tbody.innerHTML='';
+    snap.docs.forEach(d=>{
+      const doc=d.data();
+      const date=doc.uploadedAt?new Date(doc.uploadedAt.seconds*1000).toLocaleDateString('ar-SA'):'—';
+      tbody.innerHTML+=`<tr>
+        <td>${doc.clientName||'—'}</td><td>${doc.caseNumber||'—'}</td>
+        <td>${doc.name||'—'}</td><td>${doc.type||'—'}</td><td>${doc.size||'—'}</td><td>${date}</td>
+        <td><a href="${doc.url||'#'}" target="_blank" class="btn-sm btn-edit" style="text-decoration:none">فتح</a></td>
+      </tr>`;
+    });
+  } catch(e){console.error(e);}
+}
+
+function updateStats() {
+  document.getElementById('st-clients').textContent=allClients.length;
+  document.getElementById('st-cases').textContent=allClients.filter(c=>c.status==='جارية').length;
+}
+
+// ===== NAV =====
+window.showSec = function(name) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  const titles={overview:'لوحة التحكم الرئيسية',clients:'إدارة العملاء',sessions:'إدارة الجلسات',fees:'إدارة الرسوم',documents:'المستندات'};
+  document.getElementById('pgTitle').textContent=titles[name]||'';
+};
+
+// Toast
+window.showToast = function(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+};
+
+// Date
+document.getElementById('adminDate').textContent=new Date().toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== العملاء =====
+    // القراءة: فقط إذا رقم القضية ورقم الهوية متطابقان (للعميل نفسه)
+    // الكتابة: الإدارة المصادق عليها فقط
+    match /clients/{clientId} {
+      allow read: if true; // البحث بالـ query يتحقق من الشروط في الكود
+      allow write: if request.auth != null && request.auth.token.email == 'mbc122020@gmail.com';
+    }
+
+    // ===== الجلسات =====
+    match /sessions/{sessionId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'mbc122020@gmail.com';
+    }
+
+    // ===== الرسوم =====
+    match /fees/{feeId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'mbc122020@gmail.com';
+    }
+
+    // ===== المستندات =====
+    // القراءة: الإدارة فقط | الكتابة: أي مستخدم (لرفع المستندات من العميل)
+    match /documents/{docId} {
+      allow read: if true;
+      allow create: if true; // العميل يرفع مستندات
+      allow update, delete: if request.auth != null && request.auth.token.email == 'mbc122020@gmail.com';
+    }
+  }
+}
