@@ -583,7 +583,13 @@ onAuthStateChanged(auth, async user => {
       window.location.href = 'client-login.html?account=pending';
       return;
     }
-    client = { id: profile.id, ...profile.data() };
+    const profileData = profile.data();
+    if (profileData.accountStatus !== 'active') {
+      await signOut(auth);
+      window.location.href = 'client-login.html?account=review';
+      return;
+    }
+    client = { id: profile.id, ...profileData };
     populateClient();
     await Promise.all([loadSessions(), loadFees(), loadDocs()]);
   } catch (error) {
