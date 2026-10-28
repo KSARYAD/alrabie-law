@@ -62,8 +62,11 @@
       message.textContent = text;
       message.classList.add("show");
     }
-    if (new URLSearchParams(location.search).get("account") === "pending") {
-      showError("تم تسجيل الدخول، لكن لا يوجد ملف موكل مرتبط بهذا الحساب. يرجى التواصل مع الإدارة.");
+    const queryParams = new URLSearchParams(location.search);
+    if (queryParams.get("account") === "pending") {
+      showError("هذا الحساب غير مرتبط بملف موكل. يرجى التواصل مع الإدارة.");
+    } else if (queryParams.get("verify") === "1") {
+      showError("يجب تأكيد البريد الإلكتروني قبل دخول بوابة الموكل. افتح رسالة التأكيد ثم سجّل الدخول مجددًا.");
     }
 
     form.addEventListener("submit", async event => {
