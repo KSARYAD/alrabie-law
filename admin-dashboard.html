@@ -287,7 +287,7 @@ const db = getFirestore(app);
 
 // Auth guard
 onAuthStateChanged(auth, async user => {
-  if (!user || (user.email || '').toLowerCase() !== 'mbc122020@gmail.com') {
+  if (!user || (user.email || '').toLowerCase() !== 'mbc122020@gmail.com' || !user.emailVerified) {
     if (user) { try { await signOut(auth); } catch (e) { console.error('Sign-out failed', e); } }
     window.location.href = 'admin-login.html';
     return;
