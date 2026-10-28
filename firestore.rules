@@ -10,8 +10,13 @@ service cloud.firestore {
         && request.auth.token.email == 'mbc122020@gmail.com';
     }
 
-    // Client profile documents are keyed by Firebase Auth UID.
-    // Clients may create/read only their own record; only admin manages case data.
+    function isActiveClient(clientId) {
+      return signedIn()
+        && request.auth.uid == clientId
+        && exists(/databases/$(database)/documents/clients/$(request.auth.uid));
+    }
+
+    // Client profile documents are keyed by Firebase Authentication UID.
     match /clients/{clientId} {
       allow create: if isAdmin() || (
         signedIn()
@@ -26,39 +31,31 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // Case data is visible only to the admin and the linked client account.
     match /sessions/{sessionId} {
-      allow read: if isAdmin() || (
-        signedIn() && resource.data.clientId == request.auth.uid
-      );
+      allow read: if isAdmin() || isActiveClient(resource.data.clientId);
       allow create, update, delete: if isAdmin();
     }
 
     match /fees/{feeId} {
-      allow read: if isAdmin() || (
-        signedIn() && resource.data.clientId == request.auth.uid
-      );
+      allow read: if isAdmin() || isActiveClient(resource.data.clientId);
       allow create, update, delete: if isAdmin();
     }
 
-    // Document metadata and Base64 content are never public.
+    // Current portal stores uploaded file data in Firestore; keep it private.
     match /documents/{documentId} {
-      allow read: if isAdmin() || (
-        signedIn() && resource.data.clientId == request.auth.uid
-      );
-      allow create: if signedIn()
-        && request.resource.data.clientId == request.auth.uid
+      allow read: if isAdmin() || isActiveClient(resource.data.clientId);
+      allow create: if isActiveClient(request.resource.data.clientId)
         && request.resource.data.keys().hasOnly([
           'clientId', 'clientName', 'caseNumber', 'name',
           'type', 'size', 'base64', 'uploadedAt'
         ])
         && request.resource.data.keys().hasAll([
           'clientId', 'name', 'type', 'base64', 'uploadedAt'
-        ]);
+        ])
+        && request.resource.data.base64 is string;
       allow update, delete: if isAdmin();
     }
 
-    // Explicitly deny anything not listed above.
     match /{document=**} {
       allow read, write: if false;
     }
