@@ -146,7 +146,7 @@
         <h3>👥 إدارة العملاء</h3>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <input class="search-input" id="clientSearch" placeholder="بحث باسم أو رقم قضية..." oninput="filterClients()"/>
-          <button class="btn-gold" onclick="openModal('client')">+ إضافة عميل</button>
+          <button class="btn-gold" onclick="showClientRegistrationHelp()">+ رابط تسجيل موكل</button>
         </div>
       </div>
       <table><thead><tr><th>الاسم</th><th>رقم القضية</th><th>رقم الهوية</th><th>الجوال</th><th>نوع القضية</th><th>الحالة</th><th>إجراءات</th></tr></thead>
@@ -208,8 +208,8 @@
       <div class="fgroup"><label>نوع القضية</label>
         <select class="fselect" id="f-casetype">
           <option value="">اختر النوع</option>
-          <option>استرداد حقوق مالية</option><option>احتيال مالي</option><option>ميراث</option>
-          <option>تجارة إلكترونية</option><option>بنوك</option><option>قروض</option><option>أخرى</option>
+          <option>استرداد حقوق مالية</option><option>احتيال مالي</option><option>ميراث وتركات</option>
+          <option>تجارة إلكترونية</option><option>النزاعات المصرفية</option><option>القروض والتمويل</option><option>أخرى</option>
         </select>
       </div>
       <div class="fgroup"><label>المحكمة</label><input class="finput" id="f-court" placeholder="اسم المحكمة"/></div>
@@ -217,8 +217,9 @@
       <div class="fgroup"><label>تاريخ رفع القضية</label><input class="finput" id="f-filed" type="date"/></div>
       <div class="fgroup"><label>الطرف المقابل</label><input class="finput" id="f-opponent" placeholder="اسم الطرف الآخر"/></div>
       <div class="fgroup"><label>حالة القضية</label>
-        <select class="fselect" id="f-status"><option value="جارية">جارية</option><option value="معلقة">معلقة</option><option value="منتهية">منتهية</option></select>
+        <select class="fselect" id="f-status"><option value="غير مسندة">غير مسندة</option><option value="جارية">جارية</option><option value="معلقة">معلقة</option><option value="منتهية">منتهية</option></select>
       </div>
+      <div class="fgroup"><label>حالة حساب الموكل</label><select class="fselect" id="f-account-status"><option value="pending">قيد المراجعة</option><option value="active">مفعّل</option><option value="suspended">موقوف</option></select></div>
     </div>
     <div class="fgroup" style="margin-top:14px"><label>ملاحظات</label><textarea class="ftextarea" id="f-notes" rows="3" placeholder="أي ملاحظات إضافية..."></textarea></div>
     <div class="modal-actions">
@@ -348,7 +349,7 @@ function renderClients(list) {
       <td>${escapeHtml(maskId(c.nationalId||''))}</td>
       <td>${escapeHtml(c.phone||'—')}</td>
       <td>${escapeHtml(c.caseType||'—')}</td>
-      <td><span class="badge ${c.status==='جارية'?'b-green':c.status==='منتهية'?'b-red':'b-orange'}">${escapeHtml(c.status||'—')}</span></td>
+      <td><span class="badge ${c.status==='جارية'?'b-green':c.status==='منتهية'?'b-red':'b-orange'}">${escapeHtml(c.status||'—')}</span><small style="display:block;font-size:11px;margin-top:5px;color:#6b7280">${escapeHtml(({pending:'حساب قيد المراجعة',active:'حساب مفعّل',suspended:'حساب موقوف'})[c.accountStatus]||'حساب يحتاج مراجعة')}</small></td>
       <td><button class="btn-sm btn-edit" onclick="editClient('${c.id}')">تعديل</button> <button class="btn-sm btn-del" onclick="deleteClient('${c.id}')">حذف</button></td>
     </tr>`;
   });
@@ -380,15 +381,31 @@ window.closeModal = function(type) { document.getElementById(`modal-${type}`).cl
 function clearClientForm() {
   ['f-name','f-natid','f-phone','f-email','f-dob','f-address','f-casenum','f-court','f-circuit','f-filed','f-opponent','f-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-casetype').value='';
-  document.getElementById('f-status').value='جارية';
+  document.getElementById('f-status').value='غير مسندة';
+  document.getElementById('f-account-status').value='pending';
   document.getElementById('editClientId').value='';
 }
 
+window.showClientRegistrationHelp = function() {
+  const registrationUrl = new URL('client-register.html', window.location.href).href;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(registrationUrl).then(
+      () => showToast('تم نسخ رابط تسجيل الموكل. أرسله للموكل ليُنشئ حسابه بنفسه.'),
+      () => window.prompt('انسخ رابط تسجيل الموكل وأرسله إليه:', registrationUrl)
+    );
+  } else {
+    window.prompt('انسخ رابط تسجيل الموكل وأرسله إليه:', registrationUrl);
+  }
+};
+
 window.saveClient = async function() {
+  const editId=document.getElementById('editClientId').value;
+  if(!editId){showToast('لا يمكن إنشاء سجل موكل دون حساب Firebase. أرسل رابط التسجيل للموكل، ثم عدّل ملفه بعد التسجيل.');return;}
   const name=document.getElementById('f-name').value.trim();
   const natid=document.getElementById('f-natid').value.trim();
   const casenum=document.getElementById('f-casenum').value.trim();
   if(!name||!natid||!casenum){showToast('يرجى ملء الحقول الإلزامية');return;}
+  if(document.getElementById('f-account-status').value==='active' && casenum==='بانتظار التخصيص'){showToast('عيّن رقم القضية قبل تفعيل حساب الموكل');return;}
   const data={
     name,nationalId:natid,phone:document.getElementById('f-phone').value.trim(),
     email:document.getElementById('f-email').value.trim(),dob:document.getElementById('f-dob').value,
@@ -396,12 +413,12 @@ window.saveClient = async function() {
     caseType:document.getElementById('f-casetype').value,court:document.getElementById('f-court').value.trim(),
     circuit:document.getElementById('f-circuit').value.trim(),filedDate:document.getElementById('f-filed').value,
     opponent:document.getElementById('f-opponent').value.trim(),status:document.getElementById('f-status').value,
+    accountStatus:document.getElementById('f-account-status').value,
     notes:document.getElementById('f-notes').value.trim()
   };
-  const editId=document.getElementById('editClientId').value;
   try {
-    if(editId){ await updateDoc(doc(db,'clients',editId),data); showToast('تم تحديث بيانات العميل'); }
-    else { data.createdAt=serverTimestamp(); await addDoc(collection(db,'clients'),data); showToast('تم إضافة العميل بنجاح'); }
+    await updateDoc(doc(db,'clients',editId),data);
+    showToast('تم تحديث بيانات الموكل');
     closeModal('client'); loadClients();
   } catch(e){showToast('خطأ في الحفظ: '+e.message);}
 };
@@ -422,7 +439,8 @@ window.editClient = async function(id) {
   document.getElementById('f-circuit').value=d.circuit||'';
   document.getElementById('f-filed').value=d.filedDate||'';
   document.getElementById('f-opponent').value=d.opponent||'';
-  document.getElementById('f-status').value=d.status||'جارية';
+  document.getElementById('f-status').value=d.status||'غير مسندة';
+  document.getElementById('f-account-status').value=d.accountStatus||'pending';
   document.getElementById('f-notes').value=d.notes||'';
   document.getElementById('modal-client').classList.add('show');
 };
