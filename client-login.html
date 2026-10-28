@@ -90,6 +90,12 @@
           showError("هذا الحساب غير مرتبط بملف موكل. يرجى التواصل مع الإدارة للتحقق من الملف.");
           return;
         }
+        const profileData = profile.data();
+        if (profileData.accountStatus !== "active") {
+          await signOut(auth);
+          showError(profileData.accountStatus === "suspended" ? "تم إيقاف الوصول إلى هذا الحساب. يرجى التواصل مع الإدارة." : "حسابك قيد المراجعة من الإدارة. ستتمكن من الدخول بعد اعتماد الملف.");
+          return;
+        }
         location.href = "dashboard.html";
       } catch (error) {
         showError("تعذر تسجيل الدخول. تحقق من البريد وكلمة المرور أو أعد المحاولة لاحقًا.");
