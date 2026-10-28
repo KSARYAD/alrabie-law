@@ -404,6 +404,7 @@ window.saveClient = async function() {
   const natid=document.getElementById('f-natid').value.trim();
   const casenum=document.getElementById('f-casenum').value.trim();
   if(!name||!natid||!casenum){showToast('يرجى ملء الحقول الإلزامية');return;}
+  if(document.getElementById('f-account-status').value==='active' && casenum==='بانتظار التخصيص'){showToast('عيّن رقم القضية قبل تفعيل حساب الموكل');return;}
   const data={
     name,nationalId:natid,phone:document.getElementById('f-phone').value.trim(),
     email:document.getElementById('f-email').value.trim(),dob:document.getElementById('f-dob').value,
