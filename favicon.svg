@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="ميزان العدالة">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f5e2ae"/>
+      <stop offset=".55" stop-color="#d9b56a"/>
+      <stop offset="1" stop-color="#b88636"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="29" fill="#081426"/>
+  <rect x="5" y="5" width="118" height="118" rx="25" fill="none" stroke="#d9b56a" stroke-opacity=".58" stroke-width="2"/>
+  <g fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round" stroke-width="5.5">
+    <path d="M64 25v68"/>
+    <path d="M38 43h52"/>
+    <path d="M64 25l-8 8m8-8 8 8"/>
+    <path d="M38 43 24 70m14-27 14 27M90 43 76 70m14-27 14 27"/>
+    <path d="M18 70c2 11 12 17 20 17s18-6 20-17H18Zm40 0c2 11 12 17 20 17s18-6 20-17H58Z"/>
+    <path d="M48 99h32M54 91h20M64 93v6"/>
+  </g>
+</svg>
