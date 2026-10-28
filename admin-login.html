@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>دخول الإدارة | مكتب المحامي ياسر الربيع</title>
+  <title>دخول الإدارة | مكتب المحامي ياسر محسن عايض العتيبي</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -25,6 +25,8 @@
     .error-msg.show{display:block;}
     .back-link{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;color:rgba(255,255,255,0.35);font-size:13px;text-decoration:none;transition:color .2s;}
     .back-link:hover{color:#C9A84C;}
+    .reset-link{display:block;text-align:center;margin-top:16px;border:0;background:transparent;color:#e5d09a;font-family:'Tajawal',sans-serif;font-size:12px;text-decoration:underline;cursor:pointer}
+    .error-msg.success{background:rgba(39,174,96,.12);border-color:rgba(39,174,96,.35);color:#9be7b5}
     @media(max-width:480px){.admin-box{padding:36px 24px;}}
   </style>
 </head>
@@ -33,7 +35,7 @@
   <div class="admin-header">
     <div class="admin-icon">🔐</div>
     <h1>لوحة تحكم الإدارة</h1>
-    <p>مكتب المحامي ياسر الربيع</p>
+    <p>مكتب المحامي ياسر محسن عايض العتيبي</p>
   </div>
   <div class="error-msg" id="errMsg"></div>
   <div class="form-group">
@@ -45,12 +47,13 @@
     <input class="form-input" type="password" id="adminPass" placeholder="أدخل كلمة المرور"/>
   </div>
   <button class="admin-btn" id="adminBtn" onclick="adminLogin()">دخول</button>
+  <button type="button" class="reset-link" id="resetAdminPassword">إرسال رابط تغيير كلمة مرور الإدارة</button>
   <a href="index.html" class="back-link">← العودة للموقع</a>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { FIREBASE_CONFIG } from './firebase-config.js';
 
   const app = initializeApp(FIREBASE_CONFIG);
@@ -63,9 +66,18 @@
     const btn = document.getElementById('adminBtn');
     err.classList.remove('show');
     if (!email || !pass) { err.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة المرور.'; err.classList.add('show'); return; }
+    if (email.toLowerCase() !== 'mbc122020@gmail.com') { err.textContent = 'هذا الحساب ليس حساب إدارة معتمدًا.'; err.classList.add('show'); return; }
     btn.disabled = true; btn.textContent = 'جاري التحقق...';
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
+      const credential = await signInWithEmailAndPassword(auth, email, pass);
+      if (!credential.user.emailVerified) {
+        try { await sendEmailVerification(credential.user); } catch (verificationError) { console.error('Verification email failed', verificationError); }
+        await signOut(auth);
+        btn.disabled = false; btn.textContent = 'دخول';
+        err.textContent = 'يجب تأكيد بريد الإدارة أولًا. أرسلنا رابط التأكيد إن أمكن؛ افتح الرسالة ثم سجّل الدخول مجددًا.';
+        err.classList.add('show');
+        return;
+      }
       sessionStorage.setItem('adminAuth', 'true');
       window.location.href = 'admin-dashboard.html';
     } catch(e) {
@@ -74,6 +86,24 @@
       err.classList.add('show');
     }
   };
+  document.getElementById('resetAdminPassword').addEventListener('click', async () => {
+    const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+    const err = document.getElementById('errMsg');
+    err.classList.remove('show', 'success');
+    if (email !== 'mbc122020@gmail.com') {
+      err.textContent = 'اكتب البريد المعتمد للإدارة أولًا.';
+      err.classList.add('show');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      err.textContent = 'تم طلب إرسال رابط تغيير كلمة المرور إلى بريد الإدارة.';
+      err.classList.add('show', 'success');
+    } catch (error) {
+      err.textContent = 'تعذر إرسال رابط الاستعادة. تحقق من إعدادات Firebase Authentication.';
+      err.classList.add('show');
+    }
+  });
   document.addEventListener('keydown', e => { if(e.key==='Enter') window.adminLogin(); });
 </script>
 </body>

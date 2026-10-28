@@ -1,15 +1,20 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /documents/{clientId}/{fileName} {
-      // أي شخص يقدر يرفع (العميل بدون تسجيل دخول)
-      allow write: if request.resource.size < 10 * 1024 * 1024  // أقل من 10MB
-                   && (request.resource.contentType.matches('application/pdf')
-                    || request.resource.contentType.matches('image/.*')
-                    || request.resource.contentType.matches('application/msword')
-                    || request.resource.contentType.matches('application/vnd.openxmlformats.*'));
-      // القراءة للإدارة فقط
-      allow read: if true;
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'mbc122020@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // The current portal stores files in Firestore, not Cloud Storage.
+    // Keep the bucket closed until file upload is migrated to authenticated storage.
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
     }
   }
 }

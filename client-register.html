@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#081426">
+<title>إنشاء حساب موكل | المحامي ياسر العتيبي</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--gold:#d9b56a;--light:#f1d99c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at 15% 0%,rgba(217,181,106,.13),transparent 34%),linear-gradient(135deg,#050d19,#102743);font-family:"IBM Plex Sans Arabic",sans-serif;color:#fff}
+.panel{width:min(100%,650px);border:1px solid rgba(255,255,255,.18);border-radius:27px;padding:clamp(23px,5vw,40px);background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.035));backdrop-filter:blur(27px);box-shadow:0 30px 90px rgba(0,0,0,.35)}
+.heading{text-align:center;margin-bottom:24px}.mark{width:54px;height:54px;border:1px solid rgba(217,181,106,.5);background:rgba(217,181,106,.1);border-radius:17px;display:grid;place-items:center;color:var(--light);font-size:27px;margin:0 auto 14px}
+h1{font:700 26px "Amiri",serif;margin:0 0 6px}.heading p{color:#a8b7c9;font-size:12px;line-height:1.8;margin:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.field{min-width:0}.full{grid-column:1/-1}
+label{display:block;font-size:12px;color:#d4deea;margin:0 0 7px;font-weight:600}
+input,select{width:100%;padding:12px 13px;margin-bottom:15px;border:1px solid rgba(255,255,255,.17);border-radius:11px;background:rgba(4,13,25,.38);color:#fff;font:14px "IBM Plex Sans Arabic",sans-serif;outline:none}
+select option{color:#142338;background:#fff}input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,181,106,.12)}
+.notice{display:flex;gap:9px;padding:12px 13px;margin:0 0 17px;border:1px solid rgba(217,181,106,.2);background:rgba(217,181,106,.06);border-radius:12px;color:#b7c3d1;font-size:11px;line-height:1.8}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;background:linear-gradient(135deg,var(--light),#c99c4b);color:#142238;font:700 14px "IBM Plex Sans Arabic",sans-serif;cursor:pointer}
+.btn:disabled{opacity:.6;cursor:wait}.message{display:none;margin-bottom:15px;padding:12px;border-radius:10px;font-size:12px;line-height:1.7}.message.show{display:block}.error{border:1px solid rgba(255,109,109,.28);background:rgba(180,32,45,.12);color:#ffb6b6}.success{border:1px solid rgba(99,220,155,.25);background:rgba(25,130,78,.12);color:#a8f0c8}
+.back{display:block;text-align:center;margin-top:19px;color:var(--light);font-size:12px;text-decoration:none}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<main class="panel">
+<header class="heading"><div class="mark" aria-hidden="true">⚖</div><h1>إنشاء حساب موكل</h1><p>المحامي ياسر محسن عايض العتيبي<br>سجّل بياناتك لبدء بوابة متابعة الملف القانوني</p></header>
+<div id="message" class="message" role="alert"></div>
+<form id="registerForm">
+<div class="grid">
+<div class="field full"><label for="name">الاسم الكامل</label><input id="name" required maxlength="120" autocomplete="name" placeholder="الاسم كما في الهوية"></div>
+<div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" required maxlength="254" autocomplete="email" placeholder="name@example.com"></div>
+<div class="field"><label for="phone">رقم الهاتف</label><input id="phone" type="tel" required maxlength="20" autocomplete="tel" placeholder="رقم الهاتف"></div>
+<div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" required minlength="8" autocomplete="new-password" placeholder="٨ أحرف على الأقل"></div>
+<div class="field"><label for="nationalId">رقم الهوية أو الإقامة</label><input id="nationalId" required inputmode="numeric" minlength="10" maxlength="10" placeholder="10 أرقام"></div>
+<div class="field full"><label for="caseType">نوع القضية</label><select id="caseType" required><option value="">اختر نوع القضية</option><option>استرداد حقوق مالية</option><option>احتيال مالي</option><option>ميراث</option><option>تجارة إلكترونية</option><option>بنوك</option><option>قروض</option><option>أخرى</option></select></div>
+</div>
+<div class="notice"><span aria-hidden="true">◇</span><span>تُستخدم هذه البيانات لإنشاء الحساب وربط ملفك. بعد التسجيل ستكون الحالة «قيد المراجعة» حتى تتحقق الإدارة وتضيف معلومات القضية. لا تُدخل بيانات دفع في هذا النموذج.</span></div>
+<button id="registerButton" class="btn" type="submit">إنشاء الحساب بأمان</button>
+</form>
+<a class="back" href="client-login.html">لديك حساب؟ تسجيل الدخول</a>
+</main>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { FIREBASE_CONFIG } from "./firebase-config.js";
+const app=initializeApp(FIREBASE_CONFIG),auth=getAuth(app),db=getFirestore(app);
+const form=document.getElementById("registerForm"),btn=document.getElementById("registerButton"),message=document.getElementById("message");
+function show(kind,text){message.className="message show "+kind;message.textContent=text}
+form.addEventListener("submit",async event=>{
+event.preventDefault();message.className="message";btn.disabled=true;btn.textContent="جارٍ إنشاء الحساب...";
+const name=document.getElementById("name").value.trim(),email=document.getElementById("email").value.trim().toLowerCase(),phone=document.getElementById("phone").value.trim(),password=document.getElementById("password").value,nationalId=document.getElementById("nationalId").value.trim(),caseType=document.getElementById("caseType").value;
+if(!/^\d{10}$/.test(nationalId)){show("error","يرجى إدخال رقم هوية أو إقامة مكوّن من 10 أرقام.");btn.disabled=false;btn.textContent="إنشاء الحساب بأمان";return}
+let user=null,profileCreated=false;
+try{
+const credential=await createUserWithEmailAndPassword(auth,email,password);user=credential.user;
+await setDoc(doc(db,"clients",user.uid),{authUid:user.uid,name,email,phone,nationalId,caseType,caseNumber:"بانتظار التخصيص",status:"قيد المراجعة",court:"",circuit:"",filedDate:"",opponent:"",notes:"",createdAt:serverTimestamp()});
+profileCreated=true;
+await sendEmailVerification(user);
+await signOut(auth);
+show("success","تم إنشاء الحساب وإرسال رابط تأكيد البريد. افتح الرسالة لتأكيد بريدك، ثم سجّل الدخول. سيظل الملف قيد المراجعة حتى تتحقق الإدارة.");
+form.reset();
+}catch(error){
+if(user && !profileCreated){try{await deleteUser(user)}catch(cleanupError){console.error("Could not clean up incomplete account",cleanupError)}}
+if(user && profileCreated){try{await signOut(auth)}catch(signOutError){console.error("Could not sign out after incomplete verification",signOutError)}}
+const code=error&&error.code;
+const text=profileCreated?"تم إنشاء الحساب، لكن تعذر إرسال رابط تأكيد البريد. يرجى مراجعة إعدادات Firebase Authentication أو التواصل مع الإدارة.":code==="auth/email-already-in-use"?"هذا البريد مسجل من قبل. سجّل الدخول بدلًا من إنشاء حساب جديد.":code==="auth/weak-password"?"كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل.":"لم يكتمل التسجيل. تحقق من البيانات وحاول مرة أخرى.";
+show("error",text);
+}finally{btn.disabled=false;btn.textContent="إنشاء الحساب بأمان"}
+});
+</script>
+</body>
+</html>
