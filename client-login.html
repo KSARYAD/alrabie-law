@@ -22,6 +22,7 @@
     .message{display:none;border:1px solid rgba(255,109,109,.28);background:rgba(180,32,45,.12);color:#ffb6b6;padding:12px;border-radius:10px;font-size:12px;line-height:1.7;margin-bottom:15px}
     .message.show{display:block}
     .register{display:block;text-align:center;margin-top:18px;color:var(--gold-light);font-size:13px;text-decoration:none}
+    .forgot{display:block;width:100%;margin:12px 0 0;border:0;background:transparent;color:#b8c8da;font:12px "IBM Plex Sans Arabic",sans-serif;text-decoration:underline;cursor:pointer}
     .back{display:block;text-align:center;margin-top:23px;color:#91a1b6;font-size:12px;text-decoration:none}
     .notice{margin-top:22px;padding-top:15px;border-top:1px solid rgba(255,255,255,.1);color:#8293aa;font-size:11px;line-height:1.8;text-align:center}
   </style>
@@ -38,6 +39,7 @@
       <label for="password">كلمة المرور</label>
       <input id="password" type="password" autocomplete="current-password" required placeholder="أدخل كلمة المرور">
       <button class="btn" id="loginButton" type="submit">تسجيل الدخول</button>
+      <button class="forgot" id="forgotButton" type="button">نسيت كلمة المرور؟ إرسال رابط استعادة</button>
     </form>
     <a class="register" href="client-register.html">إنشاء حساب موكل جديد</a>
     <a class="back" href="index.html">العودة إلى الموقع الرئيسي</a>
@@ -45,7 +47,7 @@
   </main>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { FIREBASE_CONFIG } from "./firebase-config.js";
 
@@ -73,6 +75,12 @@
       const password = document.getElementById("password").value;
       try {
         const credential = await signInWithEmailAndPassword(auth, email, password);
+        if (!credential.user.emailVerified) {
+          try { await sendEmailVerification(credential.user); } catch (verificationError) { console.error("Verification email failed", verificationError); }
+          await signOut(auth);
+          showError("يجب تأكيد بريدك الإلكتروني أولًا. أرسلنا رابط التأكيد إن أمكن؛ افتح الرسالة ثم سجّل الدخول مجددًا.");
+          return;
+        }
         const profile = await getDoc(doc(db, "clients", credential.user.uid));
         if (!profile.exists()) {
           await signOut(auth);
@@ -85,6 +93,18 @@
       } finally {
         button.disabled = false;
         button.textContent = "تسجيل الدخول";
+      }
+    });
+
+    document.getElementById("forgotButton").addEventListener("click", async () => {
+      message.classList.remove("show");
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      if (!email) { showError("أدخل بريدك الإلكتروني أولًا ثم اضغط استعادة كلمة المرور."); return; }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showError("إذا كان البريد مسجلًا، فستصلك رسالة تتضمن رابط تغيير كلمة المرور.");
+      } catch (error) {
+        showError("تعذر إرسال رابط الاستعادة الآن. تحقق من البريد وحاول لاحقًا.");
       }
     });
   </script>
