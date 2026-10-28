@@ -55,7 +55,7 @@ if(!/^\d{10}$/.test(nationalId)){show("error","يرجى إدخال رقم هوي
 let user=null,profileCreated=false;
 try{
 const credential=await createUserWithEmailAndPassword(auth,email,password);user=credential.user;
-await setDoc(doc(db,"clients",user.uid),{authUid:user.uid,name,email,phone,nationalId,caseType,caseNumber:"بانتظار التخصيص",status:"قيد المراجعة",court:"",circuit:"",filedDate:"",opponent:"",notes:"",createdAt:serverTimestamp()});
+await setDoc(doc(db,"clients",user.uid),{authUid:user.uid,name,email,phone,nationalId,caseType,caseNumber:"بانتظار التخصيص",status:"غير مسندة",accountStatus:"pending",court:"",circuit:"",filedDate:"",opponent:"",notes:"",createdAt:serverTimestamp()});
 profileCreated=true;
 await sendEmailVerification(user);
 await signOut(auth);
