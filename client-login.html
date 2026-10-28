@@ -26,6 +26,7 @@
     .back{display:block;text-align:center;margin-top:23px;color:#91a1b6;font-size:12px;text-decoration:none}
     .notice{margin-top:22px;padding-top:15px;border-top:1px solid rgba(255,255,255,.1);color:#8293aa;font-size:11px;line-height:1.8;text-align:center}
   </style>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
   <main class="panel">
@@ -64,7 +65,9 @@
     }
     const queryParams = new URLSearchParams(location.search);
     if (queryParams.get("account") === "pending") {
-      showError("هذا الحساب غير مرتبط بملف موكل. يرجى التواصل مع الإدارة.");
+      showError("هذا الحساب غير مرتبط بملف موكل. إذا أكملت التسجيل ولم تُحفظ بياناتك، ارجع إلى صفحة التسجيل وأعد المحاولة بنفس البريد وكلمة المرور.");
+    } else if (queryParams.get("account") === "review") {
+      showError("حسابك قيد المراجعة. ستتمكن من الدخول بعد اعتماد الإدارة.");
     } else if (queryParams.get("verify") === "1") {
       showError("يجب تأكيد البريد الإلكتروني قبل دخول بوابة الموكل. افتح رسالة التأكيد ثم سجّل الدخول مجددًا.");
     }
@@ -87,12 +90,21 @@
         const profile = await getDoc(doc(db, "clients", credential.user.uid));
         if (!profile.exists()) {
           await signOut(auth);
-          showError("هذا الحساب غير مرتبط بملف موكل. يرجى التواصل مع الإدارة للتحقق من الملف.");
+          showError("هذا الحساب غير مرتبط بملف موكل. إذا أكملت التسجيل، ارجع إلى صفحة التسجيل وأعد المحاولة بنفس البريد وكلمة المرور.");
+          return;
+        }
+        const profileData = profile.data();
+        if (profileData.accountStatus !== "active") {
+          await signOut(auth);
+          showError(profileData.accountStatus === "suspended" ? "تم إيقاف الوصول إلى هذا الحساب. يرجى التواصل مع الإدارة." : "حسابك قيد المراجعة. ستتمكن من الدخول بعد اعتماد الإدارة.");
           return;
         }
         location.href = "dashboard.html";
       } catch (error) {
-        showError("تعذر تسجيل الدخول. تحقق من البريد وكلمة المرور أو أعد المحاولة لاحقًا.");
+        console.error("Client login failed", { code: error && error.code, message: error && error.message });
+        const code = error && error.code;
+        const text = code === "auth/unauthorized-domain" ? "نطاق الموقع غير مسموح في إعدادات Firebase Authentication." : code === "auth/operation-not-allowed" ? "تسجيل البريد وكلمة المرور غير مفعّل في Firebase Authentication." : code === "auth/network-request-failed" ? "تعذر الاتصال بخدمة الدخول. تحقق من الإنترنت ثم أعد المحاولة." : code === "permission-denied" || code === "firestore/permission-denied" ? "تعذر قراءة ملفك من قاعدة البيانات. يلزم مراجعة قواعد Firestore." : code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found" ? "البريد أو كلمة المرور غير صحيحة. يمكنك استخدام استعادة كلمة المرور." : "تعذر تسجيل الدخول. رمز التشخيص: " + (code || "غير معروف") + ".";
+        showError(text);
       } finally {
         button.disabled = false;
         button.textContent = "تسجيل الدخول";
