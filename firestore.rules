@@ -13,7 +13,6 @@ service cloud.firestore {
 
     function isActiveClient(clientId) {
       return signedIn()
-        && request.auth.token.email_verified == true
         && request.auth.uid == clientId
         && exists(/databases/$(database)/documents/clients/$(request.auth.uid))
         && get(/databases/$(database)/documents/clients/$(request.auth.uid)).data.accountStatus == 'active';
