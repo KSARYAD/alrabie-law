@@ -10,27 +10,10 @@ service firebase.storage {
         && request.auth.token.email == 'mbc122020@gmail.com';
     }
 
-    // Files must be stored under the authenticated client's UID.
-    match /documents/{clientId}/{fileName} {
-      allow read: if isAdmin() || (
-        signedIn() && request.auth.uid == clientId
-      );
-
-      allow create, update: if signedIn()
-        && request.auth.uid == clientId
-        && request.resource.size < 10 * 1024 * 1024
-        && (
-          request.resource.contentType == 'application/pdf'
-          || request.resource.contentType.matches('image/.*')
-          || request.resource.contentType == 'application/msword'
-          || request.resource.contentType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        );
-
-      allow delete: if isAdmin();
-    }
-
+    // The current portal stores files in Firestore, not Cloud Storage.
+    // Keep the bucket closed until file upload is migrated to authenticated storage.
     match /{allPaths=**} {
-      allow read, write: if false;
+      allow read, write: if isAdmin();
     }
   }
 }
