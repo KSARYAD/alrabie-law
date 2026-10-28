@@ -43,104 +43,124 @@ select option{color:#142338;background:#fff}input:focus,select:focus{border-colo
 </main>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { FIREBASE_CONFIG } from "./firebase-config.js";
-const app=initializeApp(FIREBASE_CONFIG),auth=getAuth(app),db=getFirestore(app);
-const form=document.getElementById("registerForm"),btn=document.getElementById("registerButton"),message=document.getElementById("message");
-function show(kind,text){message.className="message show "+kind;message.textContent=text}
-form.addEventListener("submit",async event=>{
-event.preventDefault();message.className="message";btn.disabled=true;btn.textContent="جارٍ إنشاء الحساب...";
-const name=document.getElementById("name").value.trim(),email=document.getElementById("email").value.trim().toLowerCase(),phone=document.getElementById("phone").value.trim(),password=document.getElementById("password").value,nationalId=document.getElementById("nationalId").value.trim(),caseType=document.getElementById("caseType").value;
-if(!/^\d{10}$/.test(nationalId)){show("error","يرجى إدخال رقم هوية أو إقامة مكوّن من 10 أرقام.");btn.disabled=false;btn.textContent="إنشاء الحساب بأمان";return}
-let user=null,profileCreated=false;
-try{
-  let credential;
-  try{
-    credential=await createUserWithEmailAndPassword(auth,email,password);
-  }catch(createError){
-    if(createError.code!=="auth/email-already-in-use") throw createError;
-    try{
-      credential=await signInWithEmailAndPassword(auth,email,password);
-    }catch(signInError){
-      if(signInError.code==="auth/invalid-credential"||signInError.code==="auth/wrong-password"){
-        const resumeError=new Error("An account exists with this email, but the password did not match.");
-        resumeError.code="auth/existing-account-login-required";
-        throw resumeError;
-      }
-      throw signInError;
-    }
-  }
-  user=credential.user;
-  const profileRef=doc(db,"clients",user.uid);
-  const existingProfile=await getDoc(profileRef);
-  if(existingProfile.exists()){
-    if(!user.emailVerified){
-      try{
-        await sendEmailVerification(user);
-        await signOut(auth);
-        show("success","هذا الحساب موجود ولم يتم تأكيد البريد بعد. أعدنا إرسال رابط التأكيد إلى بريدك الإلكتروني.");
-      }catch(verificationError){
-        try{await signOut(auth)}catch(signOutError){console.error("Sign-out failed",signOutError)}
-        throw Object.assign(verificationError,{registrationPhase:"verification"});
-      }
-      return;
-    }
-    const currentProfile=existingProfile.data();
-    await signOut(auth);
-    show("error",currentProfile.accountStatus==="active"?"لديك حساب موكل فعّال بالفعل. استخدم صفحة تسجيل الدخول.":"هذا البريد مرتبط بحساب موجود. إذا كان ملفك قيد المراجعة، انتظر اعتماد الإدارة أو استخدم صفحة تسجيل الدخول.");
+
+const app = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const form = document.getElementById("registerForm");
+const btn = document.getElementById("registerButton");
+const message = document.getElementById("message");
+
+function show(kind, text) {
+  message.className = "message show " + kind;
+  message.textContent = text;
+}
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  message.className = "message";
+  btn.disabled = true;
+  btn.textContent = "جارٍ إنشاء الحساب...";
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const phone = document.getElementById("phone").value.trim();
+  const password = document.getElementById("password").value;
+  const nationalId = document.getElementById("nationalId").value.trim();
+  const caseType = document.getElementById("caseType").value;
+
+  if (!/^\d{10}$/.test(nationalId)) {
+    show("error", "يرجى إدخال رقم هوية أو إقامة مكوّن من 10 أرقام.");
+    btn.disabled = false;
+    btn.textContent = "إنشاء الحساب بأمان";
     return;
   }
-  const needsVerification=!user.emailVerified;
-  await setDoc(profileRef,{
-    authUid:user.uid,
-    name,email,phone,nationalId,caseType,
-    caseNumber:"بانتظار التخصيص",
-    status:"غير مسندة",
-    accountStatus:"pending",
-    court:"",circuit:"",filedDate:"",opponent:"",notes:"",
-    createdAt:serverTimestamp()
-  });
-  profileCreated=true;
-  if(needsVerification) await sendEmailVerification(user);
-  await signOut(auth);
-  show("success",needsVerification?"تم إنشاء الحساب وحفظ ملفك وإرسال رابط تأكيد البريد. افتح الرسالة لتأكيد بريدك؛ سيبقى الملف قيد المراجعة حتى تعتمد الإدارة الحساب.":"تم استكمال ربط حسابك بملف الموكل. يمكنك تسجيل الدخول بعد اعتماد الإدارة.");
-  form.reset();
-}catch(error){
-  if(auth.currentUser){
-    try{await signOut(auth)}catch(signOutError){console.error("Sign-out failed",signOutError)}
+
+  let profileCreated = false;
+  try {
+    let credential;
+    try {
+      credential = await createUserWithEmailAndPassword(auth, email, password);
+    } catch (createError) {
+      if (createError.code !== "auth/email-already-in-use") throw createError;
+      credential = await signInWithEmailAndPassword(auth, email, password);
+    }
+
+    const user = credential.user;
+    const profileRef = doc(db, "clients", user.uid);
+    const existingProfile = await getDoc(profileRef);
+
+    if (existingProfile.exists()) {
+      const currentProfile = existingProfile.data();
+      if (currentProfile.accountStatus === "suspended") {
+        await signOut(auth);
+        show("error", "تم إيقاف الوصول إلى هذا الحساب. يرجى التواصل مع الإدارة.");
+        return;
+      }
+      window.location.replace("dashboard.html");
+      return;
+    }
+
+    await setDoc(profileRef, {
+      authUid: user.uid,
+      name,
+      email,
+      phone,
+      nationalId,
+      caseType,
+      caseNumber: "بانتظار التخصيص",
+      status: "غير مسندة",
+      accountStatus: "pending",
+      court: "",
+      circuit: "",
+      filedDate: "",
+      opponent: "",
+      notes: "",
+      createdAt: serverTimestamp()
+    });
+    profileCreated = true;
+
+    // Do not send email-verification messages or sign the newly created client out.
+    window.location.replace("dashboard.html?welcome=1");
+  } catch (error) {
+    if (auth.currentUser) {
+      try { await signOut(auth); } catch (signOutError) { console.error("Sign-out failed", signOutError); }
+    }
+
+    const code = error && error.code;
+    let text;
+    if (code === "auth/unauthorized-domain") {
+      text = "Firebase لا يسمح بالتسجيل من نطاق الموقع الحالي. تأكد من إضافة ksaryad.github.io إلى Authorized domains في مشروع yasserlwo.";
+    } else if (code === "auth/operation-not-allowed") {
+      text = "التسجيل بالبريد الإلكتروني وكلمة المرور غير مفعّل في Firebase Authentication.";
+    } else if (code === "permission-denied" || code === "firestore/permission-denied") {
+      text = "تم إنشاء حساب الدخول، لكن Firestore رفض حفظ ملف الموكل. يلزم مراجعة قواعد Firestore المنشورة.";
+    } else if (code === "auth/email-already-in-use" || code === "auth/invalid-credential" || code === "auth/wrong-password") {
+      text = "هذا البريد مستخدم من قبل أو كلمة المرور غير صحيحة. سجّل الدخول أو استخدم استعادة كلمة المرور.";
+    } else if (code === "auth/invalid-email") {
+      text = "صيغة البريد الإلكتروني غير صحيحة. راجع البريد ثم أعد المحاولة.";
+    } else if (code === "auth/weak-password") {
+      text = "كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل.";
+    } else if (code === "auth/network-request-failed") {
+      text = "تعذر الاتصال بخدمة التسجيل. تحقق من الاتصال بالإنترنت ثم أعد المحاولة.";
+    } else if (code === "auth/too-many-requests") {
+      text = "تمت محاولات كثيرة خلال وقت قصير. انتظر قليلًا ثم أعد المحاولة.";
+    } else if (code === "auth/configuration-not-found" || code === "auth/api-key-not-valid") {
+      text = "إعداد Firebase المرتبط بالموقع غير مكتمل أو غير صحيح.";
+    } else if (profileCreated) {
+      text = "تم إنشاء الحساب، لكن تعذر فتح البوابة تلقائيًا. سجّل الدخول من صفحة بوابة العميل.";
+    } else {
+      text = "لم يكتمل التسجيل. رمز التشخيص: " + (code || "غير معروف") + ".";
+    }
+    console.error("Client registration failed", { code, message: error && error.message });
+    show("error", text);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "إنشاء الحساب بأمان";
   }
-  const code=error&&error.code;
-  let text;
-  if(profileCreated){
-    text="تم إنشاء ملفك، لكن تعذر إرسال رسالة تأكيد البريد. جرّب لاحقًا أو اطلب إعادة إرسال رسالة التأكيد.";
-  }else if(code==="auth/unauthorized-domain"){
-    text="Firebase لا يسمح بالتسجيل من نطاق الموقع الحالي. يجب إضافة ksaryad.github.io إلى قائمة Authorized domains في إعدادات Authentication لمشروع yasserlwo.";
-  }else if(code==="auth/operation-not-allowed"){
-    text="التسجيل بالبريد الإلكتروني وكلمة المرور غير مفعّل في Firebase Authentication. يجب تفعيل Email/Password للمشروع.";
-  }else if(code==="permission-denied"||code==="firestore/permission-denied"){
-    text="تم إنشاء حساب الدخول، لكن Firestore رفض حفظ ملف الموكل. تحتاج قواعد Firestore المنشورة إلى السماح بتسجيل ذاتي آمن؛ أعد المحاولة بعد إصلاح القواعد.";
-  }else if(code==="auth/existing-account-login-required"||code==="auth/email-already-in-use"||code==="auth/invalid-credential"||code==="auth/wrong-password"){
-    text="هذا البريد مستخدم من قبل أو كلمة المرور غير صحيحة. سجّل الدخول أو استخدم استعادة كلمة المرور بدل إنشاء حساب جديد.";
-  }else if(code==="auth/invalid-email"){
-    text="صيغة البريد الإلكتروني غير صحيحة. راجع البريد ثم أعد المحاولة.";
-  }else if(code==="auth/weak-password"){
-    text="كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل.";
-  }else if(code==="auth/network-request-failed"){
-    text="تعذر الاتصال بخدمة التسجيل. تحقق من الاتصال بالإنترنت أو جرّب تعطيل مانع التتبع مؤقتًا.";
-  }else if(code==="auth/too-many-requests"){
-    text="تمت محاولات كثيرة خلال وقت قصير. انتظر قليلًا ثم أعد المحاولة.";
-  }else if(code==="auth/configuration-not-found"||code==="auth/api-key-not-valid"){
-    text="إعداد Firebase المرتبط بالموقع غير مكتمل أو غير صحيح. يلزم التحقق من إعدادات المشروع.";
-  }else{
-    text="لم يكتمل التسجيل. رمز التشخيص: "+(code||"غير معروف")+". لم نحذف حساب الدخول تلقائيًا؛ يمكن إعادة المحاولة بعد معالجة السبب.";
-  }
-  console.error("Client registration failed",{code,message:error&&error.message});
-  show("error",text);
-}finally{
-  btn.disabled=false;
-  btn.textContent="إنشاء الحساب بأمان";
-}
 });
 </script>
 </body>

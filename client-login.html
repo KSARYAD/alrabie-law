@@ -44,11 +44,11 @@
     </form>
     <a class="register" href="client-register.html">إنشاء حساب موكل جديد</a>
     <a class="back" href="index.html">العودة إلى الموقع الرئيسي</a>
-    <p class="notice">تُعرض بيانات الملف بعد التحقق من حسابك. إذا كان لديك ملف قديم ولا تستطيع الدخول، تواصل مع الإدارة لربط الحساب بالملف الصحيح.</p>
+    <p class="notice">يمكنك الدخول مباشرة دون تأكيد البريد الإلكتروني. تُعرض تفاصيل القضية بعد اعتماد الإدارة لحسابك. إذا كان لديك ملف قديم، تواصل مع الإدارة لربط الحساب بالملف الصحيح.</p>
   </main>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { FIREBASE_CONFIG } from "./firebase-config.js";
 
@@ -67,9 +67,9 @@
     if (queryParams.get("account") === "pending") {
       showError("هذا الحساب غير مرتبط بملف موكل. إذا أكملت التسجيل ولم تُحفظ بياناتك، ارجع إلى صفحة التسجيل وأعد المحاولة بنفس البريد وكلمة المرور.");
     } else if (queryParams.get("account") === "review") {
-      showError("حسابك قيد المراجعة. ستتمكن من الدخول بعد اعتماد الإدارة.");
-    } else if (queryParams.get("verify") === "1") {
-      showError("يجب تأكيد البريد الإلكتروني قبل دخول بوابة الموكل. افتح رسالة التأكيد ثم سجّل الدخول مجددًا.");
+      showError("حسابك قيد مراجعة الإدارة. يمكنك دخول البوابة الآن، وستظهر تفاصيل الملف بعد تفعيل الحساب.");
+    } else if (queryParams.get("account") === "suspended") {
+      showError("تم إيقاف الوصول إلى هذا الحساب. يرجى التواصل مع الإدارة.");
     }
 
     form.addEventListener("submit", async event => {
@@ -81,12 +81,6 @@
       const password = document.getElementById("password").value;
       try {
         const credential = await signInWithEmailAndPassword(auth, email, password);
-        if (!credential.user.emailVerified) {
-          try { await sendEmailVerification(credential.user); } catch (verificationError) { console.error("Verification email failed", verificationError); }
-          await signOut(auth);
-          showError("يجب تأكيد بريدك الإلكتروني أولًا. أرسلنا رابط التأكيد إن أمكن؛ افتح الرسالة ثم سجّل الدخول مجددًا.");
-          return;
-        }
         const profile = await getDoc(doc(db, "clients", credential.user.uid));
         if (!profile.exists()) {
           await signOut(auth);
@@ -94,9 +88,9 @@
           return;
         }
         const profileData = profile.data();
-        if (profileData.accountStatus !== "active") {
+        if (profileData.accountStatus === "suspended") {
           await signOut(auth);
-          showError(profileData.accountStatus === "suspended" ? "تم إيقاف الوصول إلى هذا الحساب. يرجى التواصل مع الإدارة." : "حسابك قيد المراجعة. ستتمكن من الدخول بعد اعتماد الإدارة.");
+          showError("تم إيقاف الوصول إلى هذا الحساب. يرجى التواصل مع الإدارة.");
           return;
         }
         location.href = "dashboard.html";
