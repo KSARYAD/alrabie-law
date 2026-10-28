@@ -394,7 +394,36 @@
       *,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
     }
 
-  </style>
+  
+/* Unified transparent liquid glass — client portal */
+:root{--gold:#d8b46a;--gold-light:#f0d99b;--gold-dark:#92713a;--navy:#071426;--navy-mid:#112b47;--cream:#eaf0f7;--white:rgba(255,255,255,.045);--green:#56d6a1;--red:#ff9696;--orange:#efc06d;--text-dark:#eef4fb;--text-mid:#b0c0d4;--text-light:#8b9db4;--border:rgba(255,255,255,.13)}
+body{color:#edf3fb!important;background:radial-gradient(ellipse at 12% 7%,rgba(49,102,158,.24),transparent 33%),radial-gradient(ellipse at 85% 23%,rgba(199,157,82,.1),transparent 27%),radial-gradient(ellipse at 38% 95%,rgba(32,81,128,.22),transparent 38%),linear-gradient(145deg,#050e1d,#08182b 50%,#071426)!important;background-attachment:fixed!important}
+body:before{background:radial-gradient(circle,rgba(78,139,193,.19),transparent 70%)}body:after{background:radial-gradient(circle,rgba(214,179,108,.12),transparent 70%)}
+.sidebar{background:linear-gradient(158deg,rgba(5,15,29,.78),rgba(8,26,45,.58) 58%,rgba(13,35,58,.54))!important;border-left:1px solid rgba(255,255,255,.13);box-shadow:-22px 0 60px rgba(0,0,0,.17),inset 1px 0 0 rgba(255,255,255,.06);backdrop-filter:blur(36px) saturate(160%)!important;-webkit-backdrop-filter:blur(36px) saturate(160%)!important}
+.sidebar-logo,.sidebar-footer{border-color:rgba(255,255,255,.1)!important}.sidebar-logo-text h2{color:#f4f7fc}.sidebar-logo-text p{color:#e1c27e}
+.sidebar-link{color:rgba(229,238,249,.65)}.sidebar-link:hover{background:rgba(255,255,255,.055)!important;border-color:rgba(255,255,255,.08)!important}.sidebar-link.active{background:linear-gradient(110deg,rgba(217,181,106,.12),rgba(255,255,255,.035))!important;border-color:rgba(217,181,106,.2)!important;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.client-card{background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.025))!important;border-color:rgba(255,255,255,.13)!important;backdrop-filter:blur(24px)}
+.main-content{background:transparent!important}.page-title:before{color:#ddbe7d;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.page-title h1{color:#f2f6fc!important}.page-title p{color:#a8b8cc!important}.topbar-date{color:#bdcad9!important;background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.13)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)!important;backdrop-filter:blur(30px)!important}
+.ov-card,.info-card,.table-card,.fee-card{background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025))!important;border:1px solid rgba(255,255,255,.13)!important;box-shadow:0 18px 52px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.075)!important;backdrop-filter:blur(32px) saturate(155%)!important;-webkit-backdrop-filter:blur(32px) saturate(155%)!important}
+.ov-card:before{background:radial-gradient(circle,rgba(255,255,255,.075),rgba(255,255,255,0) 72%)!important}.ov-card:hover,.fee-card:hover{border-color:rgba(255,255,255,.22)!important;box-shadow:0 22px 56px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.1)!important}
+.ov-card h3,.info-card h3,.table-header h3,.fee-amount{color:#edf4fc!important}.ov-card p,.info-label,.fee-desc,.fee-amount span{color:#a9b9cd!important}
+.ov-icon{border-color:rgba(255,255,255,.12)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 6px 15px rgba(0,0,0,.12)!important}
+.info-card h3{border-bottom-color:rgba(255,255,255,.12)!important}.info-row{border-bottom-color:rgba(255,255,255,.1)!important}.info-val{color:#eff5fc!important}
+.status-badge{border-color:rgba(255,255,255,.12)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)!important}.status-active{background:rgba(37,179,121,.14)!important;color:#7ce6ba!important}.status-pending{background:rgba(223,167,72,.14)!important;color:#f1ce86!important}.status-closed{background:rgba(220,91,91,.14)!important;color:#ffaaaa!important}
+.table-header{background:rgba(255,255,255,.025)!important;border-bottom-color:rgba(255,255,255,.11)!important}thead{background:rgba(255,255,255,.035)!important}thead th{color:#b6c5d7!important;border-bottom-color:rgba(255,255,255,.1)!important}tbody td{color:#d6e1ee!important;border-bottom-color:rgba(255,255,255,.075)!important}tbody tr:hover{background:rgba(255,255,255,.045)!important}.empty-state{color:#9aabc0!important}
+.upload-area{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018))!important;border-color:rgba(217,181,106,.35)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.065),0 15px 38px rgba(0,0,0,.12)!important;backdrop-filter:blur(32px)!important}.upload-area h3{color:#eef4fb!important}.upload-area p{color:#a8b8cc!important}.upload-area:hover,.upload-area.dragover{background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(217,181,106,.04))!important}
+.upload-item{background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.13)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 10px 28px rgba(0,0,0,.12)!important}.upload-item-name{color:#eaf2fb!important}.upload-item-size{color:#9fb0c7!important}.upload-progress{background:rgba(255,255,255,.1)!important}
+.doc-card{background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.02))!important;border-color:rgba(255,255,255,.13)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 30px rgba(0,0,0,.12)!important}.doc-card:hover{border-color:rgba(217,181,106,.4)!important;box-shadow:0 18px 40px rgba(0,0,0,.18)!important}.doc-card-name{color:#edf4fc!important}.doc-card-meta{color:#9eafc5!important}
+.preview-modal{background:rgba(1,7,15,.62)!important;backdrop-filter:blur(24px)!important}.preview-box{background:rgba(12,28,47,.88)!important;color:#edf3fb;border:1px solid rgba(255,255,255,.16);box-shadow:0 35px 100px rgba(0,0,0,.38)!important;backdrop-filter:blur(35px)!important}.preview-close{border:1px solid rgba(255,255,255,.16)!important}
+.toast{background:rgba(6,20,37,.78)!important;border:1px solid rgba(255,255,255,.15)!important;border-right:3px solid #e5c986!important;backdrop-filter:blur(34px)!important}
+.mobile-topbar{background:rgba(5,17,32,.62)!important;border-bottom:1px solid rgba(255,255,255,.12)!important;box-shadow:0 12px 35px rgba(0,0,0,.18)!important;backdrop-filter:blur(34px) saturate(160%)!important}.burger{background:rgba(255,255,255,.055)!important;border-color:rgba(255,255,255,.13)!important}
+#pendingApproval{background:radial-gradient(ellipse at 16% 15%,rgba(49,102,158,.25),transparent 38%),radial-gradient(ellipse at 88% 80%,rgba(199,157,82,.1),transparent 32%),linear-gradient(145deg,#050e1d,#091a2d)!important}
+#pendingApproval>section{background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025))!important;border:1px solid rgba(255,255,255,.16)!important;box-shadow:0 30px 90px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08)!important;backdrop-filter:blur(36px) saturate(155%)!important}
+#pendingApproval h1,#pendingApproval p,#pendingApproval p:first-of-type{color:#eaf2fb!important}#pendingApproval p:not(:first-of-type){color:#a8b9cd!important}
+@media(max-width:900px){.sidebar{background:rgba(5,17,32,.83)!important}.sidebar.open{box-shadow:-25px 0 75px rgba(0,0,0,.3)!important}.sidebar-overlay{background:rgba(0,5,13,.55)!important}}
+
+</style>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
