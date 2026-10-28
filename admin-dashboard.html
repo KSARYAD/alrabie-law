@@ -312,6 +312,9 @@ async function loadAll() {
   updateStats();
 }
 
+function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char])); }
+function safeHttpsUrl(value) { try { const url = new URL(String(value || ''), window.location.href); return url.protocol === 'https:' ? url.href : '#'; } catch { return '#'; } }
+
 // ===== CLIENTS =====
 async function loadClients() {
   try {
@@ -324,9 +327,9 @@ async function loadClients() {
     tbody.innerHTML = '';
     allClients.slice(0,5).forEach(c => {
       tbody.innerHTML += `<tr>
-        <td>${c.name||'—'}</td><td>${c.caseNumber||'—'}</td><td>${maskId(c.nationalId||'')}</td>
-        <td>${c.caseType||'—'}</td>
-        <td><span class="badge ${c.status==='جارية'?'b-green':c.status==='منتهية'?'b-red':'b-orange'}">${c.status||'—'}</span></td>
+        <td>${escapeHtml(c.name||'—')}</td><td>${escapeHtml(c.caseNumber||'—')}</td><td>${escapeHtml(maskId(c.nationalId||''))}</td>
+        <td>${escapeHtml(c.caseType||'—')}</td>
+        <td><span class="badge ${c.status==='جارية'?'b-green':c.status==='منتهية'?'b-red':'b-orange'}">${escapeHtml(c.status||'—')}</span></td>
       </tr>`;
     });
     if(!allClients.length) tbody.innerHTML='<tr><td colspan="5" class="empty-msg">لا يوجد عملاء بعد</td></tr>';
@@ -339,12 +342,12 @@ function renderClients(list) {
   tbody.innerHTML='';
   list.forEach(c => {
     tbody.innerHTML += `<tr>
-      <td><strong>${c.name||'—'}</strong></td>
-      <td>${c.caseNumber||'—'}</td>
-      <td>${maskId(c.nationalId||'')}</td>
-      <td>${c.phone||'—'}</td>
-      <td>${c.caseType||'—'}</td>
-      <td><span class="badge ${c.status==='جارية'?'b-green':c.status==='منتهية'?'b-red':'b-orange'}">${c.status||'—'}</span></td>
+      <td><strong>${escapeHtml(c.name||'—')}</strong></td>
+      <td>${escapeHtml(c.caseNumber||'—')}</td>
+      <td>${escapeHtml(maskId(c.nationalId||''))}</td>
+      <td>${escapeHtml(c.phone||'—')}</td>
+      <td>${escapeHtml(c.caseType||'—')}</td>
+      <td><span class="badge ${c.status==='جارية'?'b-green':c.status==='منتهية'?'b-red':'b-orange'}">${escapeHtml(c.status||'—')}</span></td>
       <td><button class="btn-sm btn-edit" onclick="editClient('${c.id}')">تعديل</button> <button class="btn-sm btn-del" onclick="deleteClient('${c.id}')">حذف</button></td>
     </tr>`;
   });
@@ -444,10 +447,10 @@ window.loadAdminSessions = async function() {
       const s=d.data();
       const stClass=s.status==='اكتملت'?'b-green':s.status==='قادمة'?'b-blue':'b-orange';
       tbody.innerHTML+=`<tr>
-        <td>${s.clientName||'—'}</td><td>${s.caseNumber||'—'}</td><td>${s.date||'—'}</td>
-        <td>${s.court||'—'}</td><td>${s.judge||'—'}</td><td>${s.result||'—'}</td>
-        <td>${s.nextDate||'—'}</td>
-        <td><span class="badge ${stClass}">${s.status||'—'}</span></td>
+        <td>${escapeHtml(s.clientName||'—')}</td><td>${escapeHtml(s.caseNumber||'—')}</td><td>${escapeHtml(s.date||'—')}</td>
+        <td>${escapeHtml(s.court||'—')}</td><td>${escapeHtml(s.judge||'—')}</td><td>${escapeHtml(s.result||'—')}</td>
+        <td>${escapeHtml(s.nextDate||'—')}</td>
+        <td><span class="badge ${stClass}">${escapeHtml(s.status||'—')}</span></td>
         <td><button class="btn-sm btn-del" onclick="deleteSession('${d.id}')">حذف</button></td>
       </tr>`;
     });
@@ -489,9 +492,9 @@ async function loadAdminFees() {
       if(f.status!=='مدفوعة')pending+=Number(f.amount||0);
       const stClass=f.status==='مدفوعة'?'b-green':f.status==='متأخرة'?'b-red':'b-orange';
       tbody.innerHTML+=`<tr>
-        <td>${f.clientName||'—'}</td><td>${f.caseNumber||'—'}</td><td>${f.description||'—'}</td>
-        <td>${Number(f.amount||0).toLocaleString('ar-SA')}</td><td>${f.dueDate||'—'}</td>
-        <td><span class="badge ${stClass}">${f.status||'—'}</span></td><td>${f.paidDate||'—'}</td>
+        <td>${escapeHtml(f.clientName||'—')}</td><td>${escapeHtml(f.caseNumber||'—')}</td><td>${escapeHtml(f.description||'—')}</td>
+        <td>${Number(f.amount||0).toLocaleString('ar-SA')}</td><td>${escapeHtml(f.dueDate||'—')}</td>
+        <td><span class="badge ${stClass}">${escapeHtml(f.status||'—')}</span></td><td>${escapeHtml(f.paidDate||'—')}</td>
         <td>
           ${f.status!=='مدفوعة'?`<button class="btn-sm btn-edit" onclick="markPaid('${d.id}')">تأكيد دفع</button> `:''}
           <button class="btn-sm btn-del" onclick="deleteFee('${d.id}')">حذف</button>
@@ -538,9 +541,9 @@ async function loadAdminDocs() {
       const doc=d.data();
       const date=doc.uploadedAt?new Date(doc.uploadedAt.seconds*1000).toLocaleDateString('ar-SA'):'—';
       tbody.innerHTML+=`<tr>
-        <td>${doc.clientName||'—'}</td><td>${doc.caseNumber||'—'}</td>
-        <td>${doc.name||'—'}</td><td>${doc.type||'—'}</td><td>${doc.size||'—'}</td><td>${date}</td>
-        <td><a href="${doc.url||'#'}" target="_blank" class="btn-sm btn-edit" style="text-decoration:none">فتح</a></td>
+        <td>${escapeHtml(doc.clientName||'—')}</td><td>${escapeHtml(doc.caseNumber||'—')}</td>
+        <td>${escapeHtml(doc.name||'—')}</td><td>${escapeHtml(doc.type||'—')}</td><td>${escapeHtml(doc.size||'—')}</td><td>${date}</td>
+        <td><a href="${safeHttpsUrl(doc.url)}" target="_blank" rel="noopener noreferrer" class="btn-sm btn-edit" style="text-decoration:none">فتح</a></td>
       </tr>`;
     });
   } catch(e){console.error(e);}
