@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>لوحة التحكم | مكتب المحامي ياسر الربيع</title>
+  <title>لوحة التحكم | مكتب المحامي ياسر محسن عايض العتيبي</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -128,7 +128,7 @@
   <div class="sidebar-logo">
     <div class="emb">⚖</div>
     <div class="sidebar-logo-text">
-      <h2>مكتب ياسر الربيع</h2>
+      <h2>المحامي ياسر العتيبي</h2>
       <p>بوابة العميل الإلكترونية</p>
     </div>
   </div>
@@ -287,16 +287,14 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { FIREBASE_CONFIG } from './firebase-config.js';
 
 const app = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
 const db = getFirestore(app);
-
-// Auth guard
-const sd = sessionStorage.getItem('clientSession');
-if (!sd) { window.location.href = 'client-login.html'; }
-const client = JSON.parse(sd || '{}');
+let client = {};
 
 // ===== POPULATE =====
 function populateClient() {
@@ -526,8 +524,8 @@ window.showToast = function(msg) {
   setTimeout(() => t.classList.remove('show'), 3500);
 };
 
-window.logout = function() {
-  sessionStorage.removeItem('clientSession');
+window.logout = async function() {
+  try { await signOut(auth); } catch (e) { console.error('Sign-out failed', e); }
   window.location.href = 'client-login.html';
 };
 
@@ -553,10 +551,26 @@ document.getElementById('sidebarOverlay').onclick = () => {
 
 document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-populateClient();
-loadSessions();
-loadFees();
-loadDocs();
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    window.location.href = 'client-login.html';
+    return;
+  }
+  try {
+    const profile = await getDoc(doc(db, 'clients', user.uid));
+    if (!profile.exists()) {
+      await signOut(auth);
+      window.location.href = 'client-login.html?account=pending';
+      return;
+    }
+    client = { id: profile.id, ...profile.data() };
+    populateClient();
+    await Promise.all([loadSessions(), loadFees(), loadDocs()]);
+  } catch (error) {
+    console.error('Client profile could not be loaded', error);
+    window.location.href = 'client-login.html?account=pending';
+  }
+});
 </script>
 </body>
 </html>
