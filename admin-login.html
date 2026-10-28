@@ -73,6 +73,7 @@
       if (!credential.user.emailVerified) {
         try { await sendEmailVerification(credential.user); } catch (verificationError) { console.error('Verification email failed', verificationError); }
         await signOut(auth);
+        btn.disabled = false; btn.textContent = 'دخول';
         err.textContent = 'يجب تأكيد بريد الإدارة أولًا. أرسلنا رابط التأكيد إن أمكن؛ افتح الرسالة ثم سجّل الدخول مجددًا.';
         err.classList.add('show');
         return;
