@@ -232,7 +232,7 @@
         <div class="upload-icon">📁</div>
         <h3>اسحب الملفات هنا</h3>
         <p>صور، PDF، Word — كل الأنواع مقبولة</p>
-        <input type="file" class="upload-input" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx"/>
+        <input type="file" class="upload-input" id="fileInput" multiple accept="image/png,image/jpeg,image/gif,image/webp,.pdf,.doc,.docx"/>
         <button class="upload-btn-trigger" onclick="document.getElementById('fileInput').click()">اختر ملفات</button>
       </div>
       <div class="upload-queue" id="uploadQueue"></div>
@@ -296,6 +296,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 let client = {};
 
+function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char])); }
+
 // ===== POPULATE =====
 function populateClient() {
   document.getElementById('sidebarName').textContent = client.name || '—';
@@ -351,9 +353,9 @@ async function loadSessions() {
     docs.forEach((s,i) => {
       const cls = s.status==='اكتملت'?'status-active':s.status==='قادمة'?'status-pending':'status-closed';
       tbody.innerHTML += `<tr>
-        <td>${i+1}</td><td>${s.date||'—'}</td><td>${s.court||'—'}</td>
-        <td>${s.judge||'—'}</td><td>${s.result||'—'}</td><td>${s.nextDate||'—'}</td>
-        <td><span class="status-badge ${cls}">${s.status||'—'}</span></td>
+        <td>${i+1}</td><td>${escapeHtml(s.date||'—')}</td><td>${escapeHtml(s.court||'—')}</td>
+        <td>${escapeHtml(s.judge||'—')}</td><td>${escapeHtml(s.result||'—')}</td><td>${escapeHtml(s.nextDate||'—')}</td>
+        <td><span class="status-badge ${cls}">${escapeHtml(s.status||'—')}</span></td>
       </tr>`;
     });
     document.getElementById('sessionsTable').style.display = 'table';
@@ -378,11 +380,11 @@ async function loadFees() {
         const isPaid = f.status==='مدفوعة';
         if (!isPaid) { totalPending += Number(f.amount)||0; pendingCards.push(f); }
         tbody.innerHTML += `<tr>
-          <td>${f.description||'—'}</td>
+          <td>${escapeHtml(f.description||'—')}</td>
           <td>${Number(f.amount||0).toLocaleString('ar-SA')}</td>
-          <td>${f.dueDate||'—'}</td>
-          <td><span class="status-badge ${isPaid?'status-active':'status-pending'}">${f.status||'—'}</span></td>
-          <td>${f.paidDate||'—'}</td>
+          <td>${escapeHtml(f.dueDate||'—')}</td>
+          <td><span class="status-badge ${isPaid?'status-active':'status-pending'}">${escapeHtml(f.status||'—')}</span></td>
+          <td>${escapeHtml(f.paidDate||'—')}</td>
         </tr>`;
       });
     }
@@ -398,8 +400,8 @@ async function loadFees() {
             <div class="fee-amount">${Number(f.amount||0).toLocaleString('ar-SA')} <span>ر.س</span></div>
             <span class="status-badge status-pending">مستحقة</span>
           </div>
-          <div class="fee-desc">${f.description||'رسوم قانونية'}</div>
-          <div class="fee-due">📅 ${f.dueDate||'—'}</div>
+          <div class="fee-desc">${escapeHtml(f.description||'رسوم قانونية')}</div>
+          <div class="fee-due">📅 ${escapeHtml(f.dueDate||'—')}</div>
           <button class="pay-btn" onclick="showToast('سيتم التواصل معك لتأكيد الدفع')">💳 دفع الآن</button>
         </div>`;
       });
@@ -420,14 +422,20 @@ async function loadDocs() {
       const doc = d.data();
       const icon = doc.type==='IMAGE' ? '🖼️' : doc.type==='PDF' ? '📄' : '📝';
       const date = doc.uploadedAt ? new Date(doc.uploadedAt.seconds*1000).toLocaleDateString('ar-SA') : '—';
-      grid.innerHTML += `<div class="doc-card" onclick="previewDoc('${d.id}','${doc.type}','${doc.name}')">
+      grid.innerHTML += `<div class="doc-card" data-doc-id="${escapeHtml(d.id)}" data-doc-type="${escapeHtml(doc.type)}" data-doc-name="${escapeHtml(doc.name)}">
         <div class="doc-card-icon">${icon}</div>
-        <div class="doc-card-name">${doc.name}</div>
-        <div class="doc-card-meta">${doc.size} • ${date}</div>
+        <div class="doc-card-name">${escapeHtml(doc.name)}</div>
+        <div class="doc-card-meta">${escapeHtml(doc.size)} • ${date}</div>
       </div>`;
     });
   } catch(e) { console.error(e); }
 }
+
+// Use delegated clicks so file names never enter inline JavaScript.
+document.getElementById('docsGrid').addEventListener('click', event => {
+  const card = event.target.closest('[data-doc-id]');
+  if (card) window.previewDoc(card.dataset.docId, card.dataset.docType, card.dataset.docName);
+});
 
 // Preview
 const docCache = {};
@@ -442,12 +450,15 @@ window.previewDoc = async function(id, type, name) {
     }
     const data = docCache[id];
     if (!data) return;
+    const safeData = typeof data.base64 === 'string' && /^data:(image\/(?:png|jpeg|gif|webp)|application\/(?:pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document));base64,/i.test(data.base64) ? data.base64 : '';
+    if (!safeData) { showToast('نوع الملف غير مدعوم للمعاينة'); return; }
+    const safeName = escapeHtml(name);
     if (type === 'IMAGE') {
-      document.getElementById('previewContent').innerHTML = `<h3 style="margin-bottom:12px;font-family:'Tajawal',sans-serif">${name}</h3><img src="${data.base64}" style="max-width:70vw;max-height:70vh;border-radius:8px"/>`;
+      document.getElementById('previewContent').innerHTML = `<h3 style="margin-bottom:12px;font-family:'Tajawal',sans-serif">${safeName}</h3><img src="${safeData}" alt="${safeName}" style="max-width:70vw;max-height:70vh;border-radius:8px"/>`;
     } else {
-      document.getElementById('previewContent').innerHTML = `<h3 style="margin-bottom:12px;font-family:'Tajawal',sans-serif">${name}</h3>
+      document.getElementById('previewContent').innerHTML = `<h3 style="margin-bottom:12px;font-family:'Tajawal',sans-serif">${safeName}</h3>
         <p style="color:#666;margin-bottom:16px;font-family:'Tajawal',sans-serif">اضغط الزر لتنزيل الملف</p>
-        <a href="${data.base64}" download="${name}" style="background:#C9A84C;color:#0D1B2A;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-family:'Tajawal',sans-serif">⬇️ تنزيل الملف</a>`;
+        <a href="${safeData}" download="${safeName}" rel="noopener noreferrer" style="background:#C9A84C;color:#0D1B2A;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-family:'Tajawal',sans-serif">⬇️ تنزيل الملف</a>`;
     }
   } catch(e) { document.getElementById('previewContent').innerHTML = '<p style="color:red;padding:20px">خطأ في التحميل</p>'; }
 };
@@ -458,8 +469,11 @@ window.handleUpload = async function(files) {
   const queue = document.getElementById('uploadQueue');
   for (const file of files) {
     const sizeStr = file.size > 1024*1024 ? (file.size/1024/1024).toFixed(1)+' MB' : (file.size/1024).toFixed(0)+' KB';
-    const isImage = file.type.startsWith('image/');
+    const isImage = ['image/png','image/jpeg','image/gif','image/webp'].includes(file.type);
     const isPDF = file.type === 'application/pdf';
+    const isDoc = ['application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type);
+    if (!isImage && !isPDF && !isDoc) { showToast('نوع الملف غير مدعوم. استخدم صورة PNG/JPEG/GIF/WebP أو PDF/Word.'); continue; }
+    if (file.size > 650 * 1024) { showToast('الحد الأقصى للملف الواحد 650 كيلوبايت حاليًا.'); continue; }
     const typeStr = isImage ? 'IMAGE' : isPDF ? 'PDF' : 'DOC';
     const icon = isImage ? '🖼️' : isPDF ? '📄' : '📝';
     const itemId = 'up-' + Date.now() + Math.random().toString(36).slice(2);
@@ -467,7 +481,7 @@ window.handleUpload = async function(files) {
     queue.innerHTML += `<div class="upload-item" id="${itemId}">
       <div class="upload-item-icon">${icon}</div>
       <div class="upload-item-info">
-        <div class="upload-item-name">${file.name}</div>
+        <div class="upload-item-name">${escapeHtml(file.name)}</div>
         <div class="upload-item-size">${sizeStr}</div>
         <div class="upload-progress"><div class="upload-progress-bar" id="bar-${itemId}" style="width:30%"></div></div>
       </div>
