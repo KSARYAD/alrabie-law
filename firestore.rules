@@ -15,8 +15,7 @@ service cloud.firestore {
       return signedIn()
         && request.auth.token.email_verified == true
         && request.auth.uid == clientId
-        && exists(/databases/$(database)/documents/clients/$(request.auth.uid))
-        && get(/databases/$(database)/documents/clients/$(request.auth.uid)).data.accountStatus == 'active';
+        && exists(/databases/$(database)/documents/clients/$(request.auth.uid));
     }
 
     // Client profile documents are keyed by Firebase Authentication UID.
@@ -25,18 +24,9 @@ service cloud.firestore {
         signedIn()
         && request.auth.uid == clientId
         && request.resource.data.email == request.auth.token.email
-        && request.resource.data.authUid == request.auth.uid
-        && request.resource.data.accountStatus == 'pending'
-        && request.resource.data.caseNumber == 'بانتظار التخصيص'
-        && request.resource.data.status == 'غير مسندة'
-        && request.resource.data.keys().hasOnly([
-          'authUid', 'name', 'email', 'phone', 'nationalId', 'caseType',
-          'caseNumber', 'status', 'accountStatus', 'court', 'circuit',
-          'filedDate', 'opponent', 'notes', 'createdAt'
-        ])
         && request.resource.data.keys().hasAll([
-          'authUid', 'name', 'email', 'phone', 'nationalId', 'caseType',
-          'caseNumber', 'status', 'accountStatus', 'createdAt'
+          'name', 'email', 'phone', 'nationalId',
+          'caseType', 'caseNumber', 'status'
         ])
       );
       allow read: if isAdmin() || (signedIn() && request.auth.uid == clientId);
@@ -64,8 +54,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll([
           'clientId', 'name', 'type', 'base64', 'uploadedAt'
         ])
-        && request.resource.data.base64 is string
-        && request.resource.data.base64.size() <= 900000;
+        && request.resource.data.base64 is string;
       allow update, delete: if isAdmin();
     }
 
