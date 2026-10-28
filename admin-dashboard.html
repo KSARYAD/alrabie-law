@@ -417,6 +417,13 @@ window.saveClient = async function() {
     notes:document.getElementById('f-notes').value.trim()
   };
   try {
+    const currentProfileSnap = await getDoc(doc(db,'clients',editId));
+    if (!currentProfileSnap.exists()) { showToast('لم يتم العثور على ملف الموكل.'); return; }
+    const currentProfileData = currentProfileSnap.data();
+    if (data.accountStatus === 'active' && currentProfileData.authUid !== editId) {
+      showToast('لا يمكن تفعيل سجل قديم بلا حساب Firebase مرتبط. اطلب من الموكل التسجيل أولًا.');
+      return;
+    }
     await updateDoc(doc(db,'clients',editId),data);
     showToast('تم تحديث بيانات الموكل');
     closeModal('client'); loadClients();
