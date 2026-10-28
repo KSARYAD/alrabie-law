@@ -1,15 +1,36 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'mbc122020@gmail.com';
+    }
+
+    // Files must be stored under the authenticated client's UID.
     match /documents/{clientId}/{fileName} {
-      // أي شخص يقدر يرفع (العميل بدون تسجيل دخول)
-      allow write: if request.resource.size < 10 * 1024 * 1024  // أقل من 10MB
-                   && (request.resource.contentType.matches('application/pdf')
-                    || request.resource.contentType.matches('image/.*')
-                    || request.resource.contentType.matches('application/msword')
-                    || request.resource.contentType.matches('application/vnd.openxmlformats.*'));
-      // القراءة للإدارة فقط
-      allow read: if true;
+      allow read: if isAdmin() || (
+        signedIn() && request.auth.uid == clientId
+      );
+
+      allow create, update: if signedIn()
+        && request.auth.uid == clientId
+        && request.resource.size < 10 * 1024 * 1024
+        && (
+          request.resource.contentType == 'application/pdf'
+          || request.resource.contentType.matches('image/.*')
+          || request.resource.contentType == 'application/msword'
+          || request.resource.contentType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        );
+
+      allow delete: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
