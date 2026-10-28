@@ -87,7 +87,34 @@
     .toast.show{transform:translateX(-50%) translateY(0);}
     @media(max-width:900px){.sidebar{right:-100%;transition:right .3s}.sidebar.open{right:0}.main{margin-right:0}.stats-row{grid-template-columns:1fr 1fr}}
     @media(max-width:540px){.stats-row{grid-template-columns:1fr}.modal-grid{grid-template-columns:1fr}}
-  </style>
+  
+/* Unified transparent liquid glass — administration */
+:root{--gold:#d9b56a;--gold-light:#f1d99c;--navy:#071426;--navy-mid:#102a46;--cream:#eaf0f7;--white:rgba(255,255,255,.045);--green:#65dca8;--red:#ff9999;--orange:#f1c16d;--text-dark:#eff4fb;--text-mid:#b2c1d4;--border:rgba(255,255,255,.12)}
+body{color:#eff4fb!important;background:radial-gradient(ellipse at 12% 7%,rgba(49,102,158,.23),transparent 33%),radial-gradient(ellipse at 88% 24%,rgba(199,157,82,.095),transparent 27%),radial-gradient(ellipse at 42% 95%,rgba(32,81,128,.2),transparent 39%),linear-gradient(145deg,#050e1d,#08182b 50%,#071426)!important;background-attachment:fixed!important}
+.sidebar{background:linear-gradient(158deg,rgba(5,15,29,.8),rgba(8,26,45,.59) 58%,rgba(13,35,58,.54))!important;border-left:1px solid rgba(255,255,255,.13)!important;box-shadow:-22px 0 60px rgba(0,0,0,.18),inset 1px 0 0 rgba(255,255,255,.06)!important;backdrop-filter:blur(36px) saturate(160%)!important;-webkit-backdrop-filter:blur(36px) saturate(160%)!important}
+.sidebar-logo,.sidebar-footer{border-color:rgba(255,255,255,.1)!important}.sb-title{color:#f3f7fc!important}.sb-sub{color:#e0c17d!important}.nav-label{color:rgba(225,235,246,.42)!important}
+.sb-link{width:calc(100% - 26px)!important;margin:4px 13px!important;padding:12px 14px!important;border:1px solid transparent!important;border-radius:14px!important;color:rgba(232,240,250,.65)!important;transition:all .22s ease!important}
+.sb-link:hover{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.08)!important;color:#fff!important}.sb-link.active{background:linear-gradient(105deg,rgba(217,181,106,.12),rgba(255,255,255,.035))!important;border-color:rgba(217,181,106,.19)!important;border-right:1px solid rgba(217,181,106,.19)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.main{background:transparent!important;color:#edf4fc}.page-title h1{font-family:'Tajawal',sans-serif!important;font-size:28px!important;font-weight:900!important;color:#f1f6fc!important}.page-title p{color:#a8b8cc!important}
+#adminDate{background:rgba(255,255,255,.045)!important;color:#bfccdc!important;border-color:rgba(255,255,255,.13)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;backdrop-filter:blur(30px)!important}
+.stat-card,.tcard{background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.022))!important;border:1px solid rgba(255,255,255,.13)!important;border-radius:21px!important;box-shadow:0 18px 52px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.07)!important;backdrop-filter:blur(32px) saturate(155%)!important;-webkit-backdrop-filter:blur(32px) saturate(155%)!important}
+.stat-num,.tcard-hdr h3{color:#eff5fc!important}.stat-lbl{color:#a9b9cd!important}.stat-icon{border:1px solid rgba(255,255,255,.1)!important;background-color:rgba(255,255,255,.045)!important}
+.tcard-hdr{border-bottom-color:rgba(255,255,255,.11)!important;background:rgba(255,255,255,.02)!important}
+table{border-collapse:separate!important;border-spacing:0!important}thead{background:rgba(255,255,255,.035)!important}thead th{color:#b6c5d7!important;border-bottom:1px solid rgba(255,255,255,.1)!important}tbody td{color:#d6e1ee!important;border-bottom-color:rgba(255,255,255,.075)!important}tbody tr:hover{background:rgba(255,255,255,.045)!important}.empty-msg{color:#a6b6ca!important}
+.modal-overlay{background:rgba(0,5,13,.63)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important}
+.modal{background:linear-gradient(145deg,rgba(15,34,56,.88),rgba(7,20,37,.85))!important;color:#edf4fc!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:25px!important;box-shadow:0 35px 100px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)!important;backdrop-filter:blur(38px) saturate(155%)!important;-webkit-backdrop-filter:blur(38px) saturate(155%)!important}
+.modal h2{color:#f1f6fc!important;border-bottom-color:rgba(255,255,255,.12)!important}.fgroup label{color:#b5c4d7!important}
+.finput,.fselect,.ftextarea,.search-input{color:#edf4fc!important;background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.15)!important;border-radius:12px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important}
+.finput::placeholder,.ftextarea::placeholder,.search-input::placeholder{color:#8398b1!important}.fselect option{background:#10243a;color:#eef4fb}
+.finput:focus,.fselect:focus,.ftextarea:focus,.search-input:focus{border-color:rgba(217,181,106,.6)!important;box-shadow:0 0 0 3px rgba(217,181,106,.1)!important}
+.modal-actions{border-top-color:rgba(255,255,255,.1)!important}.btn-cancel{background:rgba(255,255,255,.07)!important;color:#d7e1ed!important;border:1px solid rgba(255,255,255,.12)!important}.btn-save{background:linear-gradient(135deg,#f1d99c,#c59a4f)!important;color:#142238!important;border:1px solid rgba(255,255,255,.24)!important}
+.btn-gold{background:linear-gradient(135deg,#f1d99c,#c49a4e)!important;color:#142238!important;border:1px solid rgba(255,255,255,.19)!important;box-shadow:0 8px 24px rgba(0,0,0,.13),inset 0 1px 0 rgba(255,255,255,.28)!important}
+.btn-edit{background:rgba(75,164,224,.13)!important;color:#9bd3ff!important;border:1px solid rgba(108,190,242,.15)!important}.btn-del{background:rgba(222,89,89,.12)!important;color:#ffaaaa!important;border:1px solid rgba(241,120,120,.13)!important}
+.badge{border:1px solid rgba(255,255,255,.1)!important}.b-green{background:rgba(43,190,130,.13)!important;color:#83e8bd!important}.b-orange{background:rgba(226,168,72,.13)!important;color:#f2cd86!important}.b-red{background:rgba(222,89,89,.13)!important;color:#ffaaaa!important}.b-blue{background:rgba(62,148,220,.13)!important;color:#9bd0ff!important}
+.toast{background:rgba(6,20,37,.8)!important;color:#f0f5fc!important;border:1px solid rgba(255,255,255,.14)!important;border-right:3px solid #dfbf7c!important;backdrop-filter:blur(34px)!important}
+@media(max-width:900px){.sidebar{background:rgba(5,17,32,.85)!important}.sidebar.open{box-shadow:-25px 0 75px rgba(0,0,0,.3)!important}.main{padding:20px 15px!important}}
+
+</style>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
