@@ -63,7 +63,9 @@ show("success","تم إنشاء الحساب وإرسال رابط تأكيد ا
 form.reset();
 }catch(error){
 if(user && !profileCreated){try{await deleteUser(user)}catch(cleanupError){console.error("Could not clean up incomplete account",cleanupError)}}
-const code=error&&error.code,text=code==="auth/email-already-in-use"?"هذا البريد مسجل من قبل. سجّل الدخول بدلًا من إنشاء حساب جديد.":code==="auth/weak-password"?"كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل.":"لم يكتمل التسجيل. تحقق من البيانات وحاول مرة أخرى.";
+if(user && profileCreated){try{await signOut(auth)}catch(signOutError){console.error("Could not sign out after incomplete verification",signOutError)}}
+const code=error&&error.code;
+const text=profileCreated?"تم إنشاء الحساب، لكن تعذر إرسال رابط تأكيد البريد. يرجى مراجعة إعدادات Firebase Authentication أو التواصل مع الإدارة.":code==="auth/email-already-in-use"?"هذا البريد مسجل من قبل. سجّل الدخول بدلًا من إنشاء حساب جديد.":code==="auth/weak-password"?"كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل.":"لم يكتمل التسجيل. تحقق من البيانات وحاول مرة أخرى.";
 show("error",text);
 }finally{btn.disabled=false;btn.textContent="إنشاء الحساب بأمان"}
 });
